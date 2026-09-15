@@ -55,14 +55,12 @@ const sessionCookieOptions = (): {
 } => {
   const sameSiteOpt = env.cookieSameSite.toLowerCase();
   const sameSite: 'lax' | 'none' =
-    sameSiteOpt === 'none' || sameSiteOpt === 'lax'
-      ? sameSiteOpt
-      : isProduction()
-        ? 'none'
-        : 'lax';
+    sameSiteOpt === 'none'
+      ? 'none'
+      : 'lax'; // Default lax for same-origin single Vercel deployment
   const secureOpt = env.cookieSecure.toLowerCase();
   const secure =
-    secureOpt === 'true' || (secureOpt !== 'false' && (sameSite === 'none' || isProduction()));
+    secureOpt === 'true' || (secureOpt !== 'false' && isProduction());
   return {
     httpOnly: true,
     secure,
@@ -71,6 +69,7 @@ const sessionCookieOptions = (): {
     path: '/',
   };
 };
+
 
 export const loginHandler = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
   try {
