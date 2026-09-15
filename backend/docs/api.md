@@ -61,7 +61,6 @@ Not configured / unreachable (`503`):
       "price": 28,
       "categoryId": "luck",
       "images": ["/assets/drishti.webp"],
-      "isFeatured": true,
       "inStock": true,
       "createdAt": "...",
       "updatedAt": "..."

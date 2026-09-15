@@ -64,10 +64,11 @@ export class AppwriteDatabaseService {
     collectionId: string,
     data: Record<string, any>,
     documentId: string = 'unique()'
-  ): Promise<T | null> {
+  ): Promise<T> {
     if (!isAppwriteConfigured()) {
-      return null;
+      throw new Error('Appwrite is not configured');
     }
+
 
     try {
       const document = await appwriteDatabases.createDocument<T>(
