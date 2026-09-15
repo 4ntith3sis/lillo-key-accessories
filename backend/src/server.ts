@@ -75,9 +75,11 @@ app.get('/', (_req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Start Server
-app.listen(env.port, () => {
-  console.log(`[LILLO Backend] Express REST API running on http://localhost:${env.port}`);
-});
+// Start Server — only listen when running locally (not on Vercel serverless)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(env.port, () => {
+    console.log(`[LILLO Backend] Express REST API running on http://localhost:${env.port}`);
+  });
+}
 
 export default app;
