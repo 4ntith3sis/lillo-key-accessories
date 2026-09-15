@@ -1,22 +1,28 @@
 const getApiBaseUrl = () => {
+  let url = '';
   if (typeof window !== 'undefined') {
-    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      return '';
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      url = process.env.NEXT_PUBLIC_API_URL;
+    } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      url = '';
+    } else {
+      url = 'http://localhost:4000';
     }
-    return 'http://localhost:4000';
+  } else {
+    if (process.env.VERCEL_URL) {
+      url = `https://${process.env.VERCEL_URL}`;
+    } else if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
+      url = process.env.NEXT_PUBLIC_API_URL;
+    } else {
+      url = 'http://localhost:4000';
+    }
   }
 
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  return process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')
-    ? process.env.NEXT_PUBLIC_API_URL
-    : 'http://localhost:4000';
+  return url.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 

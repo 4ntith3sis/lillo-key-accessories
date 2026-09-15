@@ -3,30 +3,33 @@ import { Category } from '@/types/category';
 import { Inventory } from '@/types/inventory';
 
 const getApiBaseUrl = () => {
+  let url = '';
   // 1. BROWSER RUNTIME (Client-side)
   if (typeof window !== 'undefined') {
-    // If NEXT_PUBLIC_API_URL is set to an absolute or relative path, use it
-    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-    // Otherwise on production browser, default to empty string (same-origin relative /api/...)
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      return '';
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      url = process.env.NEXT_PUBLIC_API_URL;
+    } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      url = '';
+    } else {
+      url = 'http://localhost:4000';
     }
-    return 'http://localhost:4000';
+  } else {
+    // 2. NODE.JS RUNTIME (Server-Side Rendering / Serverless SSR)
+    if (process.env.VERCEL_URL) {
+      url = `https://${process.env.VERCEL_URL}`;
+    } else if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
+      url = process.env.NEXT_PUBLIC_API_URL;
+    } else {
+      url = 'http://localhost:4000';
+    }
   }
 
-  // 2. NODE.JS RUNTIME (Server-Side Rendering / Serverless SSR)
-  // node-fetch on server requires an absolute URL. Relative paths like '/api' will throw an error in Node.js.
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  // Local SSR fallback to Express development server
-  return process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')
-    ? process.env.NEXT_PUBLIC_API_URL
-    : 'http://localhost:4000';
+  // Strip trailing '/api' or '/' if present to guarantee fetch(`${API_BASE_URL}/api/...`) never produces '/api/api/...'
+  return url.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 
