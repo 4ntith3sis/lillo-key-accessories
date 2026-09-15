@@ -2,6 +2,7 @@ import { Client, Account, Users } from 'node-appwrite';
 import { appwriteClient, isAppwriteConfigured } from '../config/appwrite.js';
 import { env } from '../config/env.js';
 
+
 export interface AdminUser {
   id: string;
   email: string;
@@ -40,7 +41,7 @@ export class AuthService {
         const user = await users.get({ userId: session.userId });
         
         const hasAdminLabel = Array.isArray(user.labels) && user.labels.includes('admin');
-        const isDevAdminEmail = process.env.ADMIN_EMAIL && user.email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase();
+        const isDevAdminEmail = env.adminEmail && user.email.toLowerCase() === env.adminEmail.toLowerCase();
         const isAdmin = hasAdminLabel || Boolean(isDevAdminEmail);
 
         if (!isAdmin) {
@@ -72,12 +73,12 @@ export class AuthService {
 
     // Dev Fallback Admin Mode for offline / initial setup testing.
     // NEVER active in production — there, authentication must come from Appwrite.
-    if (process.env.NODE_ENV === 'production') {
+    if (env.nodeEnv === 'production') {
       throw new Error('INVALID_CREDENTIALS');
     }
 
-    const fallbackEmail = (process.env.ADMIN_EMAIL || 'admin@lillo.com').toLowerCase();
-    const fallbackPass = process.env.ADMIN_PASSWORD || 'admin123';
+    const fallbackEmail = env.adminEmail.toLowerCase();
+    const fallbackPass = env.adminPassword;
 
     if (email.toLowerCase().trim() === fallbackEmail && password === fallbackPass) {
       const devToken = `dev_admin_session_${Date.now()}`;
@@ -100,11 +101,10 @@ export class AuthService {
     if (!sessionSecret || invalidatedTokens.has(sessionSecret)) return null;
 
     if (sessionSecret.startsWith('dev_admin_session_')) {
-      if (process.env.NODE_ENV === 'production') return null;
-      const fallbackEmail = (process.env.ADMIN_EMAIL || 'admin@lillo.com').toLowerCase();
+      if (env.nodeEnv === 'production') return null;
       return {
         id: 'admin_dev_001',
-        email: fallbackEmail,
+        email: env.adminEmail || 'dev-admin',
         name: 'LILLO Admin',
         isAdmin: true,
       };
@@ -122,7 +122,7 @@ export class AuthService {
       const userDetails = await users.get({ userId: user.$id }).catch(() => null);
 
       const hasAdminLabel = userDetails && Array.isArray(userDetails.labels) && userDetails.labels.includes('admin');
-      const isDevAdminEmail = process.env.ADMIN_EMAIL && user.email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase();
+      const isDevAdminEmail = env.adminEmail && user.email.toLowerCase() === env.adminEmail.toLowerCase();
       const isAdmin = hasAdminLabel || Boolean(isDevAdminEmail);
 
       return {

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/authService.js';
+import { env } from '../config/env.js';
 
 // In-memory rate limiting for login attempts
 interface RateLimitRecord {
@@ -43,7 +44,7 @@ const clearLoginRateLimit = (ip: string): void => {
  * separate backend host) requires `sameSite: 'none'` + `secure: true`.
  * Override explicitly with COOKIE_SAMESITE / COOKIE_SECURE when needed.
  */
-const isProduction = (): boolean => process.env.NODE_ENV === 'production';
+const isProduction = (): boolean => env.nodeEnv === 'production';
 
 const sessionCookieOptions = (): {
   httpOnly: boolean;
@@ -52,14 +53,14 @@ const sessionCookieOptions = (): {
   maxAge: number;
   path: string;
 } => {
-  const sameSiteOpt = (process.env.COOKIE_SAMESITE || '').toLowerCase();
+  const sameSiteOpt = env.cookieSameSite.toLowerCase();
   const sameSite: 'lax' | 'none' =
     sameSiteOpt === 'none' || sameSiteOpt === 'lax'
       ? sameSiteOpt
       : isProduction()
         ? 'none'
         : 'lax';
-  const secureOpt = (process.env.COOKIE_SECURE || '').toLowerCase();
+  const secureOpt = env.cookieSecure.toLowerCase();
   const secure =
     secureOpt === 'true' || (secureOpt !== 'false' && (sameSite === 'none' || isProduction()));
   return {
