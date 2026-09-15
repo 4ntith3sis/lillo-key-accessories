@@ -3,22 +3,31 @@ import { Category } from '@/types/category';
 import { Inventory } from '@/types/inventory';
 
 const getApiBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  // 1. BROWSER RUNTIME (Client-side)
   if (typeof window !== 'undefined') {
-    // In production browser, use relative path ('') for same-origin requests
+    // If NEXT_PUBLIC_API_URL is set to an absolute or relative path, use it
+    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+    // Otherwise on production browser, default to empty string (same-origin relative /api/...)
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       return '';
     }
-  } else {
-    // In Node.js / Vercel Serverless environment (SSR), node-fetch requires an absolute URL.
-    if (process.env.VERCEL_URL) {
-      return `https://${process.env.VERCEL_URL}`;
-    }
+    return 'http://localhost:4000';
   }
-  return 'http://localhost:4000';
+
+  // 2. NODE.JS RUNTIME (Server-Side Rendering / Serverless SSR)
+  // node-fetch on server requires an absolute URL. Relative paths like '/api' will throw an error in Node.js.
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  // Local SSR fallback to Express development server
+  return process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')
+    ? process.env.NEXT_PUBLIC_API_URL
+    : 'http://localhost:4000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 

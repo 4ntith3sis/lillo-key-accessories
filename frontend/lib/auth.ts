@@ -1,18 +1,23 @@
 const getApiBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined') {
+    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       return '';
     }
-  } else {
-    if (process.env.VERCEL_URL) {
-      return `https://${process.env.VERCEL_URL}`;
-    }
+    return 'http://localhost:4000';
   }
-  return 'http://localhost:4000';
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')
+    ? process.env.NEXT_PUBLIC_API_URL
+    : 'http://localhost:4000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 
