@@ -2,7 +2,19 @@ import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 import { Inventory } from '@/types/inventory';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') {
+    // In production browser, if NEXT_PUBLIC_API_URL is not set, use empty string for same-origin relative URLs (/api/...)
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return '';
+    }
+  }
+  return 'http://localhost:4000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
 
 export interface ApiResponse<T> {
   success: boolean;
