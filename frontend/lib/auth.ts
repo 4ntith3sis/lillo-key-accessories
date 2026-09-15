@@ -4,11 +4,16 @@ const getApiBaseUrl = () => {
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       return '';
     }
+  } else {
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}`;
+    }
   }
   return 'http://localhost:4000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 export interface User {

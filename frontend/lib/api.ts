@@ -5,15 +5,21 @@ import { Inventory } from '@/types/inventory';
 const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined') {
-    // In production browser, if NEXT_PUBLIC_API_URL is not set, use empty string for same-origin relative URLs (/api/...)
+    // In production browser, use relative path ('') for same-origin requests
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       return '';
+    }
+  } else {
+    // In Node.js / Vercel Serverless environment (SSR), node-fetch requires an absolute URL.
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}`;
     }
   }
   return 'http://localhost:4000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
 
 
 export interface ApiResponse<T> {
