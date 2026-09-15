@@ -14,6 +14,7 @@ export class AppwriteDatabaseService {
     queries: string[] = []
   ): Promise<T[]> {
     if (!isAppwriteConfigured()) {
+      console.warn(`[Appwrite] Database query skipped for ${collectionId}: APPWRITE_PROJECT_ID or APPWRITE_API_KEY is not configured.`);
       return [];
     }
 
@@ -29,10 +30,11 @@ export class AppwriteDatabaseService {
       );
       return response.documents;
     } catch (error: any) {
-      console.warn(`Appwrite listDocuments warning for ${collectionId}:`, error?.message || error);
-      return [];
+      console.error(`[Appwrite Error] listDocuments failed for database '${this.databaseId}', collection '${collectionId}':`, error?.message || error);
+      throw error;
     }
   }
+
 
   async getDocument<T extends Models.Document>(
     collectionId: string,
