@@ -1,9 +1,9 @@
 # LILLO — Key Accessories
 
-**LILLO** adalah aplikasi katalog dan e-commerce aksesori gantungan kunci berbasis web, dibangun dengan arsitektur fullstack modern menggunakan Next.js, Express.js, dan Appwrite.
+**LILLO** adalah aplikasi katalog dan e-commerce aksesori gantungan kunci berbasis web, dibangun dengan arsitektur fullstack modern menggunakan Next.js, Express.js, dan Appwrite yang berjalan dalam **satu project Vercel**.
 
 ![LILLO](https://img.shields.io/badge/LILLO-Key%20Accessories-black?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![Express](https://img.shields.io/badge/Express.js-4-black?style=flat-square&logo=express)
 ![Appwrite](https://img.shields.io/badge/Appwrite-Cloud-FD366E?style=flat-square&logo=appwrite)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
@@ -27,7 +27,7 @@
 ### Frontend
 | Teknologi | Versi |
 |-----------|-------|
-| Next.js (App Router) | 15 |
+| Next.js (App Router) | 16 |
 | React | 19 |
 | TypeScript | 5 |
 | Vanilla CSS | — |
@@ -36,7 +36,7 @@
 | Teknologi | Versi |
 |-----------|-------|
 | Node.js | 20+ |
-| Express.js | 4 |
+| Express.js (Vercel Serverless Function / Local Express) | 4 |
 | TypeScript | 5 |
 | Appwrite Node.js SDK | latest |
 
@@ -44,22 +44,35 @@
 | Layanan | Fungsi |
 |---------|--------|
 | Appwrite Cloud | Database, Storage, Authentication |
+| Vercel | Full-Stack Single Deployment (Next.js + Express Serverless API) |
 
 ---
 
 ## Arsitektur
 
+### Development Lokal:
 ```
-Next.js Frontend (Port 3000)
+Next.js Frontend (http://localhost:3000)
         ↓
-Express REST API (Port 4000)
+Express REST API (http://localhost:4000)
         ↓
 Appwrite Cloud
-   ├── Database (products, categories, orders, homepage_content, stock_history)
-   └── Storage (lillo_media_bucket, homepageAssets)
+   ├── Database (products, categories, inventory, inventory_transactions, homepage_content, about_content)
+   └── Storage (product-images)
 ```
 
-> **Aturan penting**: Frontend **tidak boleh** mengakses Appwrite secara langsung. Semua request harus melalui Express backend.
+### Production Deployment (Single Vercel Project):
+```
+Vercel (https://lillo-key-accessories.vercel.app)
+├── Next.js Frontend (/*)
+└── Express Serverless API (/api/*)
+        ↓
+Appwrite Cloud
+   ├── Database
+   └── Storage
+```
+
+> **Aturan penting**: Frontend **tidak boleh** mengakses Appwrite secara langsung. Semua request melalui `/api/*` Express backend. Tidak ada credentials Appwrite yang terekspos ke browser.
 
 ---
 
@@ -79,18 +92,21 @@ lillo-key-accessories/
 │   ├── .env.example             # Template env frontend
 │   └── package.json
 │
-├── backend/                     # Express.js TypeScript API (Port 4000)
+├── backend/                     # Express.js TypeScript API (Port 4000 / Vercel Handler)
+│   ├── api/
+│   │   └── index.ts             # Vercel Serverless Function entry point
 │   ├── src/
-│   │   ├── config/              # CORS & Appwrite SDK init
+│   │   ├── app.ts               # Express app initialization & route registration
+│   │   ├── config/              # CORS & Appwrite SDK env validation
 │   │   ├── controllers/         # Route handlers (products, categories, homepage, auth, inventory)
 │   │   ├── middleware/          # Auth middleware, rate limiter, CORS
 │   │   ├── routes/              # Express route definitions
 │   │   ├── services/            # Appwrite service wrappers
-│   │   └── server.ts            # Entry point
+│   │   └── server.ts            # Entry point untuk local dev (app.listen)
 │   ├── .env.example             # Template env backend
 │   └── package.json
 │
-├── docs/                        # Dokumentasi teknis
+├── vercel.json                  # Single-project Vercel configuration
 ├── .gitignore
 └── README.md
 ```
@@ -115,7 +131,7 @@ cd lillo-key-accessories
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env dan isi semua nilai Appwrite
+# Edit .env dan isi nilai Appwrite credentials
 npm install
 npm run dev
 ```
@@ -131,8 +147,14 @@ NODE_ENV=development
 APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
 APPWRITE_PROJECT_ID=your_project_id
 APPWRITE_API_KEY=your_api_key
-APPWRITE_DATABASE_ID=lillo_main_db
-APPWRITE_STORAGE_BUCKET_ID=lillo_media_bucket
+APPWRITE_DATABASE_ID=your_database_id
+APPWRITE_PRODUCTS_TABLE_ID=products
+APPWRITE_CATEGORIES_TABLE_ID=categories
+APPWRITE_INVENTORY_TABLE_ID=inventory
+APPWRITE_INVENTORY_TRANSACTIONS_TABLE_ID=inventory_transactions
+APPWRITE_HOMEPAGE_CONTENT_TABLE_ID=homepage_content
+APPWRITE_ABOUT_CONTENT_TABLE_ID=about_content
+APPWRITE_PRODUCT_IMAGES_BUCKET_ID=product-images
 
 # Admin
 ADMIN_EMAIL=admin@example.com
@@ -148,10 +170,17 @@ npm install
 npm run dev
 ```
 
-**Variabel env frontend (`frontend/.env.local`):**
+**Variabel env frontend:**
 
+Development (`frontend/.env.local`):
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
+```
+
+Production (Vercel Environment Variables):
+```env
+NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
 ```
 
@@ -170,7 +199,8 @@ NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
 ### Public (tanpa autentikasi)
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/api/health` | Health check |
+| GET | `/api/health` | Health check Express |
+| GET | `/api/health/appwrite` | Health check Appwrite connection |
 | GET | `/api/products` | Daftar produk |
 | GET | `/api/products/:id` | Detail produk |
 | GET | `/api/categories` | Daftar kategori |
@@ -182,38 +212,42 @@ NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
 |--------|----------|-----------|
 | POST | `/api/auth/login` | Login admin |
 | POST | `/api/auth/logout` | Logout admin |
+| GET | `/api/auth/me` | Status sesi admin |
 | POST | `/api/products` | Tambah produk |
 | PUT | `/api/products/:id` | Update produk |
 | DELETE | `/api/products/:id` | Hapus produk |
-| POST | `/api/products/upload` | Upload gambar |
-| POST | `/api/inventory/stock-in` | Stock In |
-| POST | `/api/inventory/stock-out` | Stock Out |
-| GET | `/api/inventory/:productId/history` | Riwayat stok |
-| PATCH | `/api/homepage` | Update homepage CMS |
-| PATCH | `/api/about` | Update about CMS |
+| POST | `/api/product-images` | Upload gambar produk ke Appwrite Storage |
+| GET | `/api/inventory` | Data stok inventori |
+| POST | `/api/inventory/transactions` | Catat transaksi stok (Stock In/Out) |
+| GET | `/api/admin/dashboard` | Statistik dashboard admin |
+| PUT | `/api/cms/homepage/:section` | Update bagian homepage CMS |
+| PUT | `/api/cms/about/:section` | Update bagian about CMS |
 
 ---
 
-## Keamanan
+## Single Vercel Deployment
 
-- **Autentikasi**: Appwrite Authentication (`createEmailPasswordSession`)
-- **Session Cookie**: `HttpOnly`, `SameSite=None; Secure` di production
-- **Rate Limiting**: Max 5 login gagal per 15 menit per IP
-- **CORS**: Hanya origin yang diizinkan di `FRONTEND_URL`
-- **Admin Authorization**: Endpoint admin verifikasi label `admin` di Appwrite
+Project ini menggunakan Vercel Serverless Function untuk menjalankan Express API bersama Next.js frontend dalam 1 project Vercel.
 
----
+### Set Environment Variables di Vercel Dashboard:
 
-## Deployment
+**Frontend Environment Variables:**
+- `NEXT_PUBLIC_API_URL` = `/api`
+- `NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER` = `6281234567890`
 
-### Frontend → Vercel
-- Set `NEXT_PUBLIC_API_URL` ke URL backend publik
-- Tidak ada secret Appwrite di env frontend
-
-### Backend → Node Host (Railway / Render / VPS)
-- Set semua variabel env backend
-- `NODE_ENV=production` untuk mengaktifkan cookie `SameSite=None; Secure`
-- `FRONTEND_URL` harus berisi URL Vercel yang tepat (untuk CORS)
+**Backend Environment Variables:**
+- `APPWRITE_ENDPOINT` = `https://cloud.appwrite.io/v1`
+- `APPWRITE_PROJECT_ID` = `your_project_id`
+- `APPWRITE_API_KEY` = `your_api_key`
+- `APPWRITE_DATABASE_ID` = `lillo_main_db`
+- `APPWRITE_PRODUCTS_TABLE_ID` = `products`
+- `APPWRITE_CATEGORIES_TABLE_ID` = `categories`
+- `APPWRITE_INVENTORY_TABLE_ID` = `inventory`
+- `APPWRITE_INVENTORY_TRANSACTIONS_TABLE_ID` = `inventory_transactions`
+- `APPWRITE_HOMEPAGE_CONTENT_TABLE_ID` = `homepage_content`
+- `APPWRITE_ABOUT_CONTENT_TABLE_ID` = `about_content`
+- `APPWRITE_PRODUCT_IMAGES_BUCKET_ID` = `product-images`
+- `ADMIN_EMAIL` = `admin@example.com`
 
 ---
 
