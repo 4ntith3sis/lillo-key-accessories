@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "framework": "nextjs",
-  "buildCommand": "npm run build --workspace=frontend",
-  "outputDirectory": ".next",
   "rewrites": [
     {
       "source": "/api/:path*",
