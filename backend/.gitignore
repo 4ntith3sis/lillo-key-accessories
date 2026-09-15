@@ -1,0 +1,13 @@
+# Environment secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Dependencies & build output
+node_modules/
+dist/
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
