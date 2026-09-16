@@ -9,6 +9,10 @@ interface CraftsmanshipProps {
 export default function Craftsmanship({ content }: CraftsmanshipProps) {
   const c = content || DEFAULT_HOMEPAGE_CONTENT.craftsmanship;
 
+  if (!c.image) {
+    console.warn('[CraftsmanshipSection] No image URL in CMS homepage content — check the API response or the CMS record.');
+  }
+
   return (
     <section id="craftsmanship" className="howmade-section">
       <div id="about" className="anchor-target" style={{ position: 'absolute', top: 0, left: 0, width: '1px', height: '1px', pointerEvents: 'none' }}></div>
@@ -26,7 +30,14 @@ export default function Craftsmanship({ content }: CraftsmanshipProps) {
         <div className="howmade-body">
           <div className="howmade-image">
             {c.image ? (
-              <img src={c.image} alt="LILLO Handcrafted Metal Details" loading="lazy" />
+              <img
+                src={c.image}
+                alt="LILLO Handcrafted Metal Details"
+                loading="lazy"
+                onError={() => {
+                  console.error('[CraftsmanshipSection] Image failed:', c.image);
+                }}
+              />
             ) : null}
             <div className="howmade-badge">{c.imgBadge || 'EST. 2026 — BUATAN STUDIO LILLO'}</div>
           </div>

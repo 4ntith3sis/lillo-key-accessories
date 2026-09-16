@@ -17,6 +17,10 @@ const getApiBaseUrl = () => {
     // 2. NODE.JS RUNTIME (Server-Side Rendering / Serverless SSR)
     if (process.env.VERCEL_URL) {
       url = `https://${process.env.VERCEL_URL}`;
+    } else if (process.env.FRONTEND_URL && process.env.FRONTEND_URL.startsWith('http')) {
+      // Vercel project env var: public origin hosting both the Next app and /api/*.
+      // Used when VERCEL_URL is not available at function runtime.
+      url = process.env.FRONTEND_URL;
     } else if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
       url = process.env.NEXT_PUBLIC_API_URL;
     } else {

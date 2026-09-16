@@ -29,8 +29,10 @@ export default function Hero({ content }: HeroProps) {
   useEffect(() => {
     const stage = stageRef.current;
     const playground = playgroundRef.current;
-    const charm = charmRef.current;
-    if (!stage || !playground || !charm) return;
+    // NOTE: #heroCharm may mount AFTER this effect runs (it appears when
+    // activeProduct / CMS content resolves), so the loop must not depend on
+    // the image being present at init. The image is picked up per-frame.
+    if (!stage || !playground) return;
 
     let W = stage.clientWidth || window.innerWidth;
     let H = stage.clientHeight || window.innerHeight;
@@ -114,8 +116,9 @@ export default function Hero({ content }: HeroProps) {
       const tilt = Math.atan2(dx, Math.max(dy, 40)) * -28;
       const turn = Math.max(-38, Math.min(38, vel.x * 0.055));
 
-      if (charm) {
-        charm.style.transform = `translate(${pos.x - cw / 2}px, ${pos.y - 4}px) rotate(${tilt}deg) rotateY(${turn}deg)`;
+      const charmEl = charmRef.current;
+      if (charmEl) {
+        charmEl.style.transform = `translate(${pos.x - cw / 2}px, ${pos.y - 4}px) rotate(${tilt}deg) rotateY(${turn}deg)`;
       }
 
       if (hintRef.current && !hintRef.current.classList.contains('gone')) {
@@ -246,11 +249,23 @@ export default function Hero({ content }: HeroProps) {
     const onTouchMove = (e: TouchEvent) => move(e);
     const onTouchEnd = () => up();
 
-    charm.addEventListener('mousedown', onMouseDown);
+    // Pointer events are bound to the stage (the image may not exist yet)
+    // and only act when the target is the charm image itself.
+    const isCharmTarget = (t: EventTarget | null): boolean =>
+      t !== null && t === charmRef.current;
+
+    const onStageMouseDown = (e: MouseEvent) => {
+      if (isCharmTarget(e.target)) onMouseDown(e);
+    };
+    const onStageTouchStart = (e: TouchEvent) => {
+      if (isCharmTarget(e.target)) onTouchStart(e);
+    };
+
+    stage.addEventListener('mousedown', onStageMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
 
-    charm.addEventListener('touchstart', onTouchStart, { passive: false });
+    stage.addEventListener('touchstart', onStageTouchStart, { passive: false });
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd);
 
@@ -258,8 +273,10 @@ export default function Hero({ content }: HeroProps) {
 
     return () => {
       window.removeEventListener('resize', layout);
+      stage.removeEventListener('mousedown', onStageMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      stage.removeEventListener('touchstart', onStageTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       cancelAnimationFrame(animId);
@@ -346,15 +363,17 @@ export default function Hero({ content }: HeroProps) {
           </svg>
 
           {activeProduct?.image || c.heroImage ? (
-            <img
-              id="heroCharm"
-              ref={charmRef}
-              src={activeProduct?.image || c.heroImage}
-              alt={activeProduct?.name || 'LILLO Interactive Keychain Charm — pull me!'}
-              draggable={false}
-              width={172}
-              style={{ width: '172px', height: 'auto', objectFit: 'contain' }}
-            />
+            <div className="charm-float">
+              <img
+                id="heroCharm"
+                ref={charmRef}
+                src={activeProduct?.image || c.heroImage}
+                alt={activeProduct?.name || 'LILLO Interactive Keychain Charm — pull me!'}
+                draggable={false}
+                width={172}
+                style={{ width: '172px', height: 'auto', objectFit: 'contain' }}
+              />
+            </div>
           ) : null}
           <div className="pg-hint" id="pgHint" ref={hintRef}>
             tarik saya &darr;

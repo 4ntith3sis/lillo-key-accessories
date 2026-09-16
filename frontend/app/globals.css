@@ -528,6 +528,29 @@ nav.scrolled {
   filter: drop-shadow(0 26px 36px rgba(0, 0, 0, 0.28));
 }
 
+/* Floating wrapper for the hero charm image.
+   The wrapper carries the ambient CSS float; the child #heroCharm keeps the
+   JS-driven physics transform, so the two transforms never conflict. */
+.charm-float {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  animation: charmFloat 6.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes charmFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 .pg-hint {
   position: absolute;
   top: 0;
@@ -4655,6 +4678,10 @@ nav.scrolled {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+  }
+  .charm-float {
+    animation: none !important;
+    transform: none;
   }
 }
 
