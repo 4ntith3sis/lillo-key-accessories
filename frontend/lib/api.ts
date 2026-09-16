@@ -23,6 +23,11 @@ const getApiBaseUrl = () => {
       url = process.env.FRONTEND_URL;
     } else if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
       url = process.env.NEXT_PUBLIC_API_URL;
+    } else if (process.env.VERCEL === '1') {
+      // Last-resort safety net: running inside a Vercel function without
+      // VERCEL_URL/FRONTEND_URL in the env. Call the production origin
+      // directly (same host that serves /api/*), never a dead localhost.
+      url = 'https://lillo-key-accessories.vercel.app';
     } else {
       url = 'http://localhost:4000';
     }
