@@ -94,6 +94,21 @@ const TABLES: TableSpec[] = [
       { key: 'updatedAt', type: 'string', size: 100, required: false },
     ],
   },
+  {
+    // Backend-only admin session store (persistent token revocation).
+    // API-key access only; stores the SHA-256 hash of the session token,
+    // never the raw token or any credential.
+    label: 'admin_sessions',
+    tableId: env.appwrite.tables.adminSessions || 'admin_sessions',
+    name: 'Admin Sessions',
+    columns: [
+      { key: 'token_hash', type: 'string', size: 128, required: true },
+      { key: 'user_id', type: 'string', size: 100, required: true },
+      { key: 'expires_at', type: 'string', size: 100, required: true },
+      { key: 'created_at', type: 'string', size: 100, required: false },
+      { key: 'revoked_at', type: 'string', size: 100, required: false },
+    ],
+  },
 ];
 
 const BUCKETS: Array<{ label: string; bucketId: string; name: string }> = [

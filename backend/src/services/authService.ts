@@ -1,18 +1,28 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import { Client, Account, Users } from 'node-appwrite';
+import { createHmac, createHash, timingSafeEqual } from 'node:crypto';
+import { Client, Account, Users, Query, Models } from 'node-appwrite';
 import { appwriteClient, isAppwriteConfigured } from '../config/appwrite.js';
+import { appwriteDatabaseService } from '../services/appwrite/database.js';
 import { env } from '../config/env.js';
 
 // Appwrite cloud no longer returns a usable `secret` for server-side created
 // email sessions (the field comes back empty), so the cookie session secret
-// is issued by this backend: an HMAC token keyed with the backend-only
-// Appwrite API key. Identity and the admin role still come from Appwrite
-// (email/password check + user labels); only the session token format changed.
+// is issued by this backend: an HMAC token signed with the dedicated,
+// backend-only SESSION_SECRET env var (never APPWRITE_API_KEY). Identity and
+// the admin role still come from Appwrite (email/password + user labels).
+//
+// Revocation is PERSISTENT: each issued token is recorded in the Appwrite
+// database collection `admin_sessions` (token hash only, never the raw
+// token). logout marks the record revoked, so revocation survives Vercel
+// serverless instance recycling / cold starts.
 const ADMIN_TOKEN_PREFIX = 'ltv1.';
 const ADMIN_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // match cookie maxAge
 
+const adminSessionsCollection = () => env.appwrite.tables.adminSessions;
+
+const tokenHash = (token: string): string => createHash('sha256').update(token).digest('hex');
+
 const signTokenPayload = (payload: string): string =>
-  createHmac('sha256', env.appwrite.apiKey || 'lillo-dev-key').update(payload).digest('base64url');
+  createHmac('sha256', env.sessionSecret).update(payload).digest('base64url');
 
 export interface AdminUser {
   id: string;
@@ -21,8 +31,17 @@ export interface AdminUser {
   isAdmin: boolean;
 }
 
-// In-memory set of revoked/invalidated session tokens
+// In-memory revocation cache (fast path only — the Appwrite store is
+// authoritative and survives serverless recycling).
 const invalidatedTokens = new Set<string>();
+
+interface AdminSessionRecord extends Models.Document {
+  token_hash?: string;
+  user_id?: string;
+  expires_at?: string;
+  created_at?: string;
+  revoked_at?: string;
+}
 
 export class AuthService {
   private createSessionClient(sessionSecret?: string): Client {
@@ -34,6 +53,9 @@ export class AuthService {
   }
 
   private issueAdminToken(userId: string): string {
+    if (!env.sessionSecret) {
+      throw new Error('SESSION_SECRET_NOT_CONFIGURED');
+    }
     const payload = Buffer.from(
       JSON.stringify({ uid: userId, iat: Date.now(), exp: Date.now() + ADMIN_TOKEN_TTL_MS }),
     ).toString('base64url');
@@ -41,6 +63,7 @@ export class AuthService {
   }
 
   private verifyAdminToken(token: string): string | null {
+    if (!env.sessionSecret) return null;
     const body = token.slice(ADMIN_TOKEN_PREFIX.length);
     const [payload, signature] = body.split('.');
     if (!payload || !signature) return null;
@@ -55,6 +78,16 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  private findSessionRecord(hash: string): Promise<AdminSessionRecord | null> {
+    return appwriteDatabaseService
+      .listDocuments<AdminSessionRecord>(adminSessionsCollection(), [
+        Query.equal('token_hash', hash),
+        Query.limit(1),
+      ])
+      .then((docs) => docs[0] ?? null)
+      .catch(() => null);
   }
 
   async loginAdmin(email: string, password: string): Promise<{ sessionSecret: string; user: AdminUser }> {
@@ -85,11 +118,29 @@ export class AuthService {
           throw new Error('ADMIN_ACCESS_REQUIRED');
         }
 
-        // 3. Issue the backend session token. Appwrite no longer returns a
-        //    usable session `secret` for server-side session creation, so the
-        //    cookie value is an HMAC token issued/verified by this backend.
+        // 3. Issue the backend session token (HMAC, signed with SESSION_SECRET).
         const adminToken = this.issueAdminToken(user.$id);
         invalidatedTokens.delete(adminToken);
+
+        // 4. Persist the session record (authoritative for revocation across
+        //    serverless instances). Without a store the token would verify
+        //    nowhere, so fail the login rather than issue an unusable one.
+        const expiresAt = new Date(Date.now() + ADMIN_TOKEN_TTL_MS).toISOString();
+        try {
+          await appwriteDatabaseService.createDocument<AdminSessionRecord>(
+            adminSessionsCollection(),
+            {
+              token_hash: tokenHash(adminToken),
+              user_id: user.$id,
+              expires_at: expiresAt,
+              created_at: new Date().toISOString(),
+            }
+          );
+        } catch (storeErr: any) {
+          console.error('[Auth] Failed to persist admin session record:', storeErr?.message || storeErr);
+          throw new Error('ADMIN_SESSION_STORE_UNAVAILABLE');
+        }
+
         // The email session above was only for credential verification; clean it up.
         users.deleteSession({ userId: user.$id, sessionId: session.$id }).catch(() => {});
 
@@ -103,7 +154,11 @@ export class AuthService {
           },
         };
       } catch (err: any) {
-        if (err?.message === 'ADMIN_ACCESS_REQUIRED') {
+        if (
+          err?.message === 'ADMIN_ACCESS_REQUIRED' ||
+          err?.message === 'ADMIN_SESSION_STORE_UNAVAILABLE' ||
+          err?.message === 'SESSION_SECRET_NOT_CONFIGURED'
+        ) {
           throw err;
         }
         console.warn('Appwrite login failed, attempting dev fallback:', err?.message || err);
@@ -151,9 +206,15 @@ export class AuthService {
 
     // Backend-issued HMAC admin token (ltv1.*) — the cookie value since
     // Appwrite stopped returning session secrets for server-side sessions.
+    // Verification = HMAC signature + PERSISTENT session record
+    // (exists, not revoked, not expired) + live admin role check.
     if (sessionSecret.startsWith(ADMIN_TOKEN_PREFIX)) {
       const uid = this.verifyAdminToken(sessionSecret);
       if (!uid || !isAppwriteConfigured()) return null;
+      const record = await this.findSessionRecord(tokenHash(sessionSecret));
+      if (!record || record.revoked_at || !record.expires_at || new Date(record.expires_at).getTime() < Date.now()) {
+        return null;
+      }
       try {
         const users = new Users(appwriteClient);
         const u = await users.get({ userId: uid });
@@ -204,7 +265,24 @@ export class AuthService {
     invalidatedTokens.add(sessionSecret);
 
     const isBackendToken = sessionSecret.startsWith(ADMIN_TOKEN_PREFIX);
-    if (isAppwriteConfigured() && !sessionSecret.startsWith('dev_admin_session_') && !isBackendToken) {
+    if (isBackendToken) {
+      // Persistent revocation: mark the session record revoked in Appwrite so
+      // the token stays dead across serverless instance recycling.
+      const record = await this.findSessionRecord(tokenHash(sessionSecret));
+      if (record && !record.revoked_at) {
+        await appwriteDatabaseService
+          .updateDocument<AdminSessionRecord>(adminSessionsCollection(), record.$id, {
+            revoked_at: new Date().toISOString(),
+          })
+          .catch((err: any) => {
+            console.warn('[Auth] Failed to persist session revocation:', err?.message || err);
+          });
+      }
+      return true;
+    }
+
+    const isDevToken = sessionSecret.startsWith('dev_admin_session_');
+    if (isAppwriteConfigured() && !isDevToken) {
       try {
         const client = this.createSessionClient(sessionSecret);
         const account = new Account(client);

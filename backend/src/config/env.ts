@@ -41,6 +41,10 @@ export const env = {
   cookieSameSite: process.env.COOKIE_SAMESITE || '',
   cookieSecure: process.env.COOKIE_SECURE || '',
 
+  // Session token signing secret (backend-only, NEVER exposed to the frontend).
+  // Auth fails safely (no tokens issued / no tokens accepted) when unset.
+  sessionSecret: process.env.SESSION_SECRET || '',
+
   // Appwrite
   appwrite: {
     endpoint: process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1',
@@ -54,6 +58,7 @@ export const env = {
       inventoryTransactions: process.env.APPWRITE_INVENTORY_TRANSACTIONS_TABLE_ID || 'inventory_transactions',
       homepageContent: process.env.APPWRITE_HOMEPAGE_CONTENT_TABLE_ID || 'homepage_content',
       aboutContent: process.env.APPWRITE_ABOUT_CONTENT_TABLE_ID || 'about_content',
+      adminSessions: process.env.APPWRITE_ADMIN_SESSIONS_TABLE_ID || 'admin_sessions',
     },
     buckets: {
       productImages: process.env.APPWRITE_PRODUCT_IMAGES_BUCKET_ID || 'product-images',

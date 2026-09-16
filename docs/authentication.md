@@ -61,7 +61,7 @@ APPWRITE_DATABASE_ID=lillo_main_db
 
 # Admin Fallback Configuration (Dev Mode)
 ADMIN_EMAIL=admin@lillo.com
-ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=<your-strong-password>
 ```
 
 > **Security Note**: Never expose `APPWRITE_API_KEY` or `ADMIN_PASSWORD` to the frontend or commit `.env` files.

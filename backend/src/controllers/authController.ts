@@ -111,6 +111,17 @@ export const loginHandler = async (req: Request, res: Response, _next: NextFunct
         },
       });
     } catch (err: any) {
+      // Server-side misconfiguration (missing SESSION_SECRET / session store):
+      // fail closed with 503 — never issue or accept tokens with a degraded
+      // secret, and never expose the underlying detail.
+      if (err?.message === 'SESSION_SECRET_NOT_CONFIGURED' || err?.message === 'ADMIN_SESSION_STORE_UNAVAILABLE') {
+        res.status(503).json({
+          success: false,
+          message: 'Authentication service is not fully configured. Contact the administrator.',
+        });
+        return;
+      }
+
       recordFailedLogin(ip);
 
       if (err?.message === 'ADMIN_ACCESS_REQUIRED') {
