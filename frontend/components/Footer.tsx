@@ -20,38 +20,6 @@ export default function Footer() {
             <p className="footer-tagline">
               Meaningful keychains & charms to accompany your days with character and joy.
             </p>
-            <div className="newsletter-block">
-              <p className="newsletter-label">JOIN US FOR EXCLUSIVE DROPS</p>
-              <form
-                className="newsletter-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert('Thank you for subscribing to LILLO!');
-                }}
-              >
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  required
-                  aria-label="Enter your email for the newsletter"
-                />
-                <button type="submit" aria-label="Subscribe">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </button>
-              </form>
-            </div>
 
             {/* Social Links Row */}
             <div className="footer-social-row">
