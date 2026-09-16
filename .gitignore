@@ -9,6 +9,8 @@
 **/.env
 **/.env.local
 **/.env.*.local
+VERCEL_ENV_IMPORT.env
+*.env.import
 
 # --- Node Dependencies ---
 node_modules/

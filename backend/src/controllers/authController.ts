@@ -39,28 +39,65 @@ const clearLoginRateLimit = (ip: string): void => {
 };
 
 /**
- * Session cookie options shared by login (set) and logout (clear).
- * Local dev keeps `lax` over HTTP; cross-site production (Vercel frontend →
- * separate backend host) requires `sameSite: 'none'` + `secure: true`.
- * Override explicitly with COOKIE_SAMESITE / COOKIE_SECURE when needed.
+ * Cookie options shared by login (set) and logout (clear).
+ *
+ * SameSite is derived per request:
+ *  - COOKIE_SAMESITE env var wins when explicitly set ('lax' | 'none').
+ *  - Cross-site callers (e.g. local frontend http://localhost:3000 hitting
+ *    the production Vercel API) get `SameSite=None` so the browser can
+ *    attach the cookie to credentialed cross-origin requests.
+ *  - Same-origin callers keep the default `SameSite=Lax`.
+ *
+ * Secure is on in production, on HTTPS requests (x-forwarded-proto), or when
+ * COOKIE_SECURE=true. SameSite=None is only emitted when Secure is also on,
+ * which is always the case for the production Vercel API (HTTPS).
+ * COOKIE_SECURE=true can force it locally as well.
  */
 const isProduction = (): boolean => env.nodeEnv === 'production';
 
-const sessionCookieOptions = (): {
+const requestIsCrossSite = (req: Request): boolean => {
+  const origin =
+    (typeof req.headers.origin === 'string' && req.headers.origin) ||
+    (typeof req.headers.referer === 'string' && req.headers.referer) ||
+    '';
+  if (!origin) return false;
+  let originHost = '';
+  try {
+    originHost = new URL(origin).hostname;
+  } catch {
+    return false;
+  }
+  const apiHost = (req.headers.host ?? '').split(':')[0];
+  if (!originHost || !apiHost) return false;
+  return originHost !== apiHost;
+};
+
+const requestIsSecure = (req: Request): boolean =>
+  req.headers['x-forwarded-proto'] === 'https' ||
+  Boolean((req.socket as { encrypted?: boolean } | undefined)?.encrypted);
+
+const sessionCookieOptions = (req?: Request): {
   httpOnly: boolean;
   secure: boolean;
   sameSite: 'lax' | 'none';
   maxAge: number;
   path: string;
 } => {
-  const sameSiteOpt = env.cookieSameSite.toLowerCase();
-  const sameSite: 'lax' | 'none' =
-    sameSiteOpt === 'none'
-      ? 'none'
-      : 'lax'; // Default lax for same-origin single Vercel deployment
-  const secureOpt = env.cookieSecure.toLowerCase();
+  const sameSiteOpt = (env.cookieSameSite || '').toLowerCase();
+  let sameSite: 'lax' | 'none';
+  if (sameSiteOpt === 'none' || sameSiteOpt === 'lax') {
+    sameSite = sameSiteOpt; // explicit env override
+  } else if (req && requestIsCrossSite(req)) {
+    sameSite = 'none'; // cross-site caller (local frontend -> production API)
+  } else {
+    sameSite = 'lax'; // default: same-origin single Vercel deployment
+  }
+
+  const secureOpt = (env.cookieSecure || '').toLowerCase();
   const secure =
-    secureOpt === 'true' || (secureOpt !== 'false' && isProduction());
+    secureOpt === 'true' ||
+    (secureOpt !== 'false' && (isProduction() || (req ? requestIsSecure(req) : false)));
+
   return {
     httpOnly: true,
     secure,
@@ -73,7 +110,15 @@ const sessionCookieOptions = (): {
 
 export const loginHandler = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
   try {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    // Vercel sets X-Forwarded-For to the real client IP; keying on
+    // socket.remoteAddress alone would rate-limit by internal IP (all
+    // clients one bucket) in serverless.
+    const xff = req.headers['x-forwarded-for'];
+    const ip =
+      (typeof xff === 'string' ? xff.split(',')[0]?.trim() : undefined) ||
+      req.ip ||
+      req.socket.remoteAddress ||
+      'unknown';
 
     if (!checkLoginRateLimit(ip)) {
       res.status(429).json({
@@ -98,8 +143,8 @@ export const loginHandler = async (req: Request, res: Response, _next: NextFunct
 
       clearLoginRateLimit(ip);
 
-      // Set secure HttpOnly session cookie
-      res.cookie('lillo_session', sessionSecret, sessionCookieOptions());
+      // Set secure HttpOnly session cookie (SameSite derived per request)
+      res.cookie('lillo_session', sessionSecret, sessionCookieOptions(req));
 
       res.status(200).json({
         success: true,
@@ -154,14 +199,14 @@ export const logoutHandler = async (req: Request, res: Response, _next: NextFunc
       await authService.logoutAdmin(sessionToken).catch(() => {});
     }
 
-    res.clearCookie('lillo_session', sessionCookieOptions());
+    res.clearCookie('lillo_session', sessionCookieOptions(req));
 
     res.status(200).json({
       success: true,
       message: 'Logged out successfully',
     });
   } catch (error) {
-    res.clearCookie('lillo_session', sessionCookieOptions());
+    res.clearCookie('lillo_session', sessionCookieOptions(req));
     res.status(200).json({
       success: true,
       message: 'Logged out successfully',

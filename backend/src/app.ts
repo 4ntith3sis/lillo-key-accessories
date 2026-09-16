@@ -31,20 +31,27 @@ if (!fs.existsSync(uploadsDir)) {
   }
 }
 
-// Dynamic CORS configuration allowing frontend domain and local development
+// Explicit CORS allow-list: the configured frontend origin, local dev
+// origins (local frontend using the production Vercel API), and Vercel
+// deployment domains (production + previews). Never a wildcard — the API
+// is used with `credentials: 'include'` (session cookie), which a wildcard
+// Access-Control-Allow-Origin must not be combined with.
+const LOCAL_DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+const isAllowedOrigin = (origin: string): boolean =>
+  origin === env.frontendUrl ||
+  LOCAL_DEV_ORIGINS.includes(origin) ||
+  origin.endsWith('.vercel.app');
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or same-origin serverless)
+      // No Origin header: same-origin request, curl, or server-to-server.
       if (!origin) return callback(null, true);
-      if (
-        origin === env.frontendUrl ||
-        origin.endsWith('.vercel.app') ||
-        origin.includes('localhost')
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
-      return callback(null, true); // Permissive in portfolio mode for easy testing
+      return callback(null, false);
     },
     credentials: true,
   })

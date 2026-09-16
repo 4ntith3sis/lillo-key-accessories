@@ -54,11 +54,10 @@
 ```
 Next.js Frontend (http://localhost:3000)
         ↓
-Express REST API (http://localhost:4000)
+Vercel Serverless API (https://lillo-key-accessories.vercel.app/api/*)
         ↓
-Appwrite Cloud
-   ├── Database (products, categories, inventory, inventory_transactions, homepage_content, about_content)
-   └── Storage (product-images)
+Express → Appwrite Cloud
+   (backend lokal :4000 opsional, tidak diperlukan)
 ```
 
 ### Production Deployment (Single Vercel Project):
@@ -172,11 +171,15 @@ npm run dev
 
 **Variabel env frontend:**
 
-Development (`frontend/.env.local`):
+Development (`frontend/.env.local`) — frontend lokal memakai **Vercel Serverless API**,
+jadi backend lokal (`npm run dev` di `backend/`) **tidak perlu** dijalankan:
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_API_URL=https://lillo-key-accessories.vercel.app
 NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
 ```
+
+> Opsi: untuk memakai backend lokal, jalankan `cd backend && npm run dev` lalu set
+> `NEXT_PUBLIC_API_URL=http://localhost:4000`.
 
 Production (Vercel Environment Variables):
 ```env
@@ -188,9 +191,9 @@ NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER=6281234567890
 
 ### 4. Buka di browser
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:4000](http://localhost:4000)
-- **Health Check**: [http://localhost:4000/api/health](http://localhost:4000/api/health)
+- **Frontend**: [http://localhost:3000](http://localhost:3000) (mengganti semua data via `https://lillo-key-accessories.vercel.app/api/*`)
+- **Health Check (production)**: [https://lillo-key-accessories.vercel.app/api/health](https://lillo-key-accessories.vercel.app/api/health)
+- (Opsional) Backend lokal: [http://localhost:4000](http://localhost:4000) hanya jika dijalankan manual
 
 ---
 

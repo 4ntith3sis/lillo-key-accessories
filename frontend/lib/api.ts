@@ -1,47 +1,22 @@
 import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 import { Inventory } from '@/types/inventory';
+import { API_BASE_URL } from '@/lib/apiBaseUrl';
 
-const getApiBaseUrl = () => {
-  let url = '';
-  // 1. BROWSER RUNTIME (Client-side)
-  if (typeof window !== 'undefined') {
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      url = process.env.NEXT_PUBLIC_API_URL;
-    } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      url = '';
-    } else {
-      url = 'http://localhost:4000';
-    }
-  } else {
-    // 2. NODE.JS RUNTIME (Server-Side Rendering / Serverless SSR)
-    if (process.env.VERCEL_URL) {
-      url = `https://${process.env.VERCEL_URL}`;
-    } else if (process.env.FRONTEND_URL && process.env.FRONTEND_URL.startsWith('http')) {
-      // Vercel project env var: public origin hosting both the Next app and /api/*.
-      // Used when VERCEL_URL is not available at function runtime.
-      url = process.env.FRONTEND_URL;
-    } else if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
-      url = process.env.NEXT_PUBLIC_API_URL;
-    } else if (process.env.VERCEL === '1') {
-      // Last-resort safety net: running inside a Vercel function without
-      // VERCEL_URL/FRONTEND_URL in the env. Call the production origin
-      // directly (same host that serves /api/*), never a dead localhost.
-      url = 'https://lillo-key-accessories.vercel.app';
-    } else {
-      url = 'http://localhost:4000';
-    }
+// Vercel limits serverless function request bodies to ~4.5 MB. Image uploads
+// are sent as base64-in-JSON (~33% overhead), so the client enforces a 3 MB
+// per-file limit to keep every request safely under the platform limit.
+export const MAX_IMAGE_UPLOAD_BYTES = 3 * 1024 * 1024;
+
+export const assertImageUploadSize = (fileOrBase64: File | string): void => {
+  const bytes =
+    typeof fileOrBase64 !== 'string'
+      ? fileOrBase64.size
+      : Math.floor(fileOrBase64.replace(/^data:image\/\w+;base64,/, '').length * 0.75);
+  if (bytes > MAX_IMAGE_UPLOAD_BYTES) {
+    throw new Error('Image must be 3 MB or smaller.');
   }
-
-  // Strip trailing '/api' or '/' if present to guarantee fetch(`${API_BASE_URL}/api/...`) never produces '/api/api/...'
-  return url.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 };
-
-const API_BASE_URL = getApiBaseUrl();
-
-
-
-
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -345,6 +320,7 @@ export async function deleteProduct(id: string): Promise<{ imageCleanup?: ImageC
 }
 
 export async function uploadProductImage(base64Data: string, filename = 'product.jpg'): Promise<{ fileId: string; url: string }> {
+  assertImageUploadSize(base64Data);
   const res = await fetch(`${API_BASE_URL}/api/product-images`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -403,15 +379,33 @@ export async function deleteCategory(id: string): Promise<boolean> {
 
 export async function getHomepageContent(baseUrl?: string): Promise<import('@/types/homepage').HomepageContent> {
   const base = (baseUrl && baseUrl.startsWith('http') ? baseUrl : API_BASE_URL).replace(/\/+$/, '');
-  const res = await fetch(`${base}/api/homepage`, {
-    cache: 'no-store',
-  });
-  const json: ApiResponse<import('@/types/homepage').HomepageContent> = await res.json();
-  if (!res.ok || !json.success || !json.data) {
-    console.error(`[CMS] /api/homepage unavailable from ${base} (HTTP ${res.status}) — serving default content.`);
-    const { DEFAULT_HOMEPAGE_CONTENT } = await import('@/types/homepage');
-    return DEFAULT_HOMEPAGE_CONTENT;
+  let res: Response;
+  try {
+    res = await fetch(`${base}/api/homepage`, {
+      cache: 'no-store',
+    });
+  } catch (err) {
+    console.error(
+      `[CMS] GET ${base}/api/homepage network error (${err instanceof Error ? err.message : String(err)}) — falling back to default homepage content.`
+    );
+    throw err;
   }
+
+  let json: ApiResponse<import('@/types/homepage').HomepageContent>;
+  try {
+    json = (await res.json()) as ApiResponse<import('@/types/homepage').HomepageContent>;
+  } catch {
+    console.error(`[CMS] GET ${base}/api/homepage returned a malformed JSON response (HTTP ${res.status}).`);
+    throw new Error(`Malformed response from /api/homepage`);
+  }
+
+  if (!res.ok || !json.success || !json.data) {
+    console.error(
+      `[CMS] GET ${base}/api/homepage failed (HTTP ${res.status}, success=${json.success ? 'true' : 'false'}, message=${json.message ?? 'n/a'}) — falling back to default homepage content.`
+    );
+    throw new Error(`Failed to fetch homepage content (HTTP ${res.status})`);
+  }
+
   return json.data;
 }
 
@@ -437,6 +431,8 @@ export async function uploadHomepageAsset(
 ): Promise<{ fileId?: string; url: string; assetUrl: string }> {
   let base64Data = '';
   let name = filename;
+
+  assertImageUploadSize(fileOrBase64);
 
   if (typeof fileOrBase64 !== 'string') {
     name = fileOrBase64.name || filename;
@@ -465,14 +461,33 @@ export async function uploadHomepageAsset(
 }
 
 export async function getAboutContent(): Promise<import('@/types/about').AboutContent> {
-  const res = await fetch(`${API_BASE_URL}/api/about`, {
-    cache: 'no-store',
-  });
-  const json: ApiResponse<import('@/types/about').AboutContent> = await res.json();
-  if (!res.ok || !json.success || !json.data) {
-    const { DEFAULT_ABOUT_CONTENT } = await import('@/types/about');
-    return DEFAULT_ABOUT_CONTENT;
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/api/about`, {
+      cache: 'no-store',
+    });
+  } catch (err) {
+    console.error(
+      `[CMS] GET ${API_BASE_URL}/api/about network error (${err instanceof Error ? err.message : String(err)}) — falling back to default about content.`
+    );
+    throw err;
   }
+
+  let json: ApiResponse<import('@/types/about').AboutContent>;
+  try {
+    json = (await res.json()) as ApiResponse<import('@/types/about').AboutContent>;
+  } catch {
+    console.error(`[CMS] GET ${API_BASE_URL}/api/about returned a malformed JSON response (HTTP ${res.status}).`);
+    throw new Error(`Malformed response from /api/about`);
+  }
+
+  if (!res.ok || !json.success || !json.data) {
+    console.error(
+      `[CMS] GET ${API_BASE_URL}/api/about failed (HTTP ${res.status}, success=${json.success ? 'true' : 'false'}, message=${json.message ?? 'n/a'}) — falling back to default about content.`
+    );
+    throw new Error(`Failed to fetch about content (HTTP ${res.status})`);
+  }
+
   return json.data;
 }
 
@@ -498,6 +513,8 @@ export async function uploadAboutAsset(
 ): Promise<{ fileId?: string; url: string; assetUrl: string }> {
   let base64Data = '';
   let name = filename;
+
+  assertImageUploadSize(fileOrBase64);
 
   if (typeof fileOrBase64 !== 'string') {
     name = fileOrBase64.name || filename;
@@ -531,6 +548,8 @@ export async function uploadCmsImage(
 ): Promise<{ fileId: string; url: string }> {
   let base64Data = '';
   let name = filename;
+
+  assertImageUploadSize(fileOrBase64);
 
   if (typeof fileOrBase64 !== 'string') {
     name = fileOrBase64.name || filename;

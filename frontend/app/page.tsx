@@ -23,8 +23,9 @@ export default async function Home() {
     // (vercel.json rewrites /api/* to the /api/index function). Resolve the
     // SSR API base from the incoming request's Host header instead of relying
     // on env vars (VERCEL_URL/FRONTEND_URL) that may be absent from the
-    // serverless function's runtime env. Locally the host is not *.vercel.app,
-    // so the existing getApiBaseUrl() chain (localhost:4000) is used.
+    // serverless function's runtime env. Locally, the host is not
+    // *.vercel.app, so the shared getApiBaseUrl() chain is used — which
+    // defaults to the production Vercel API (no local backend required).
     const h = await headers();
     const host = h.get('host') ?? '';
     const ssrApiBase = host.endsWith('.vercel.app') ? `https://${host}` : undefined;
