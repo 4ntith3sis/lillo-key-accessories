@@ -395,13 +395,16 @@ nav.scrolled {
   font-family: var(--font-serif);
   font-weight: 800;
   font-size: clamp(3.6rem, 6.2vw, 6.4rem);
-  line-height: 0.95;
+  line-height: 1.0;
   letter-spacing: -0.02em;
   color: var(--text-main);
-  text-transform: uppercase;
 }
 .hero-copy .hero-title span {
   display: inline-block;
+}
+/* Four-line hero composition: each word on its own visual line */
+.hero-copy .hero-title .hero-line {
+  display: block;
 }
 .hero-copy .sub {
   font-size: 1.12rem;
@@ -513,9 +516,9 @@ nav.scrolled {
   position: absolute;
   top: 0;
   left: 0;
-  width: 172px;
+  width: 155px;
   height: auto;
-  max-height: 240px;
+  max-height: 216px;
   object-fit: contain;
   object-position: top center;
   user-select: none;

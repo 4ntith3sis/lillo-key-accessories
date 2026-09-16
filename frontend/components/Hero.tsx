@@ -47,7 +47,7 @@ export default function Hero({ content }: HeroProps) {
 
     let W = stage.clientWidth || window.innerWidth;
     let H = stage.clientHeight || window.innerHeight;
-    let REST = window.innerWidth < 700 ? 150 : 215;
+    let REST = window.innerWidth < 700 ? 135 : 195;
     const DAMP = 2.4;
     const GRAV = 580;
     let pos = { x: 0, y: 0 };
@@ -65,7 +65,7 @@ export default function Hero({ content }: HeroProps) {
     const layout = () => {
       W = stage.clientWidth || window.innerWidth;
       H = stage.clientHeight || window.innerHeight;
-      REST = window.innerWidth < 700 ? 150 : 215;
+      REST = window.innerWidth < 700 ? 135 : 195;
       const r = playground.getBoundingClientRect();
       const sr = stage.getBoundingClientRect();
       anchor = { x: r.left - sr.left + r.width * 0.5, y: Math.max(r.top - sr.top + 65, 40) };
@@ -121,7 +121,7 @@ export default function Hero({ content }: HeroProps) {
     };
 
     const render = () => {
-      const cw = 172;
+      const cw = 155;
       const dx = pos.x - anchor.x;
       const dy = pos.y - anchor.y;
       const tilt = Math.atan2(dx, Math.max(dy, 40)) * -28;
@@ -300,13 +300,16 @@ export default function Hero({ content }: HeroProps) {
       <div className="hero-copy">
         <p className="kicker intro-1">{c.kicker}</p>
         <h1 className="hero-title intro-2">
-          {c.title}
+          <span className="hero-line">LITTLE</span>
+          <span className="hero-line">Things</span>
+          <span className="hero-line">big</span>
+          <span className="hero-line">feeling</span>
         </h1>
         <p className="sub intro-3">
           {c.sub}
         </p>
         <div className="hero-cta intro-4">
-"          <Link className="btn btn-primary magnetic" href={getValidLink(c.primaryBtnLink, '/collection')}>
+          <Link className="btn btn-primary magnetic" href={getValidLink(c.primaryBtnLink, '/collection')}>
             {c.primaryBtnText}
             <svg
               width="15"
@@ -325,7 +328,7 @@ export default function Hero({ content }: HeroProps) {
           </Link>
           <Link className="btn-link magnetic" href={getValidLink(c.secondaryBtnLink, '/about')}>
             {c.secondaryBtnText}
-          </Link>"
+          </Link>
         </div>
       </div>
 
@@ -381,8 +384,8 @@ export default function Hero({ content }: HeroProps) {
                 src={heroSrc}
                 alt={activeProduct?.name || 'LILLO Interactive Keychain Charm — pull me!'}
                 draggable={false}
-                width={172}
-                style={{ width: '172px', height: 'auto', objectFit: 'contain', visibility: heroImgVisible ? 'visible' : 'hidden' }}
+                width={155}
+                style={{ width: '155px', height: 'auto', objectFit: 'contain', visibility: heroImgVisible ? 'visible' : 'hidden' }}
                 onLoad={() => setHeroImgVisible(true)}
                 onError={() => setHeroImgVisible(false)}
               />
