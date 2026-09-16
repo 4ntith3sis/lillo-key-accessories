@@ -35,7 +35,7 @@ export default function CategorySidebar({
   return (
     <div className="collection-category-bar" aria-label="Category navigation">
       <div className="category-nav-list" role="list">
-        {renderButton('all', 'SEMUA', productCounts?.['all'], selectedCategory === 'all')}
+        {renderButton('all', 'ALL', productCounts?.['all'], selectedCategory === 'all')}
 
         {categories.map((cat) => {
           const key = cat.slug || cat.$id || cat.name.toLowerCase();

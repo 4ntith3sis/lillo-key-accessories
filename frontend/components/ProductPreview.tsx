@@ -73,7 +73,7 @@ export default function ProductPreview({ categoryHeader }: ProductPreviewProps) 
       }
     } catch (err: unknown) {
       console.warn('Failed to fetch products from API:', err);
-      setError('Produk tidak tersedia sementara. Silakan coba lagi.');
+      setError('Products temporarily unavailable. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -341,11 +341,11 @@ export default function ProductPreview({ categoryHeader }: ProductPreviewProps) 
             {[1, 2, 3, 4].map((i) => (
               <article key={i} className="lillo-product-card" style={{ pointerEvents: 'none' }}>
                 <div className="card-image-box" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Memuat...</span>
+                  <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Loading...</span>
                 </div>
                 <div className="card-info-box">
                   <span className="card-category">...</span>
-                  <h3 className="card-title">Memuat Produk</h3>
+                  <h3 className="card-title">Loading Product</h3>
                   <div className="card-price">--.--</div>
                 </div>
               </article>
@@ -359,12 +359,12 @@ export default function ProductPreview({ categoryHeader }: ProductPreviewProps) 
               className="btn btn-secondary"
               style={{ cursor: 'pointer', padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}
             >
-              Coba Lagi
+              Retry
             </button>
           </div>
         ) : productList.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#FFFFFF', borderRadius: '24px', border: '1px solid rgba(24,24,24,0.08)' }}>
-            <p style={{ color: '#5C5C5C', fontSize: '0.95rem' }}>Belum ada produk yang tersedia.</p>
+            <p style={{ color: '#5C5C5C', fontSize: '0.95rem' }}>No products available yet.</p>
           </div>
         ) : (
           <div className="product-cards-grid" id="productGrid">
@@ -374,7 +374,7 @@ export default function ProductPreview({ categoryHeader }: ProductPreviewProps) 
                 product={product}
                 isSelected={selectedProduct.id === product.id}
                 onClick={() => handleProductSelect(product)}
-                actionLabel="PRATINJAU LANGSUNG"
+                actionLabel="LIVE PREVIEW"
               />
             ))}
           </div>

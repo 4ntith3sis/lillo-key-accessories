@@ -132,28 +132,28 @@ export default function Navbar() {
             href="/"
             onClick={(e) => handleNavClick(e, '/')}
           >
-            Beranda
+            Home
           </Link>
           <Link
             className={`nav-link ${isCollectionPage ? 'active' : ''}`}
             href="/collection"
             onClick={(e) => handleNavClick(e, '/collection')}
           >
-            Koleksi
+            Collection
           </Link>
           <Link
             className={`nav-link ${isAboutPage || (isHomePage && activeSection === 'about') ? 'active' : ''}`}
             href="/about"
             onClick={(e) => handleNavClick(e, '/about')}
           >
-            Tentang
+            About
           </Link>
           <Link
             className={`nav-link ${isContactPage || (isHomePage && activeSection === 'contact') ? 'active' : ''}`}
             href="/contact"
             onClick={(e) => handleNavClick(e, '/contact')}
           >
-            Kontak
+            Contact
           </Link>
         </div>
 
@@ -181,7 +181,7 @@ export default function Navbar() {
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
-            <span>Keranjang</span>
+            <span>Cart</span>
             <span className={`cart-count ${isBounce ? 'badge-bounce' : ''}`}>({totalItems})</span>
           </Link>
 
@@ -209,35 +209,35 @@ export default function Navbar() {
               href="/"
               onClick={(e) => handleNavClick(e, '/')}
             >
-              Beranda
+              Home
             </Link>
             <Link
               className={`mobile-nav-link ${isCollectionPage ? 'active' : ''}`}
               href="/collection"
               onClick={(e) => handleNavClick(e, '/collection')}
             >
-              Koleksi
+              Collection
             </Link>
             <Link
               className={`mobile-nav-link ${isAboutPage || (isHomePage && activeSection === 'about') ? 'active' : ''}`}
               href="/about"
               onClick={(e) => handleNavClick(e, '/about')}
             >
-              Tentang
+              About
             </Link>
             <Link
               className={`mobile-nav-link ${isContactPage || (isHomePage && activeSection === 'contact') ? 'active' : ''}`}
               href="/contact"
               onClick={(e) => handleNavClick(e, '/contact')}
             >
-              Kontak
+              Contact
             </Link>
             <Link
               className={`mobile-nav-link ${isCartPage ? 'active' : ''}`}
               href="/cart"
               onClick={(e) => handleNavClick(e, '/cart')}
             >
-              Keranjang ({totalItems})
+              Cart ({totalItems})
             </Link>
           </div>
         </div>

@@ -36,11 +36,11 @@ export default function CartPage() {
         <div className="cart-page-container">
           {/* Header Banner */}
           <div className="cart-header-section">
-            <span className="cart-small-label">PILIHAN ANDA</span>
-            <h1 className="cart-main-heading">KERANJANG BELANJA</h1>
+            <span className="cart-small-label">YOUR SELECTION</span>
+            <h1 className="cart-main-heading">SHOPPING CART</h1>
             {items.length > 0 && (
               <p className="cart-sub-heading">
-                Kamu memiliki {totalItems} item di keranjang belanja.
+                You have {totalItems} item{totalItems === 1 ? '' : 's'} in your shopping cart.
               </p>
             )}
           </div>
@@ -49,12 +49,12 @@ export default function CartPage() {
             /* Empty State */
             <div className="cart-empty-container">
               <div className="empty-icon-circle">🛒</div>
-              <h2 className="empty-title">KERANJANG BELANJA KOSONG</h2>
+              <h2 className="empty-title">YOUR SHOPPING CART IS EMPTY</h2>
               <p className="empty-sub">
-                Jelajahi koleksi gantungan kunci dan aksesoris buatan tangan kami untuk menemukan favoritmu berikutnya.
+                Explore our collection of handmade keychains and accessories to find your next favorite.
               </p>
               <Link href="/collection" className="btn btn-primary continue-shopping-btn">
-                <span>LANJUTKAN BELANJA</span>
+                <span>CONTINUE SHOPPING</span>
                 <span className="btn-sparkle">✦</span>
               </Link>
             </div>
@@ -96,7 +96,7 @@ export default function CartPage() {
 
                     {/* Quantity Control */}
                     <div className="cart-item-quantity-box">
-                      <span className="qty-label">JUMLAH</span>
+                      <span className="qty-label">QTY</span>
                       <div className="qty-controls">
                         <button
                           className="qty-btn"
@@ -116,7 +116,7 @@ export default function CartPage() {
                         </button>
                       </div>
                       {itemStock !== undefined && (
-                        <span className="detail-qty-hint">STOK {itemStock}</span>
+                        <span className="detail-qty-hint">STOCK {itemStock}</span>
                       )}
                     </div>
 
@@ -129,10 +129,10 @@ export default function CartPage() {
                     {/* Remove Action */}
                     <button
                       className="cart-item-remove-btn"
-                      aria-label={`Hapus ${product.name} dari keranjang`}
+                      aria-label={`Remove ${product.name} from cart`}
                       onClick={() => removeFromCart(product.id)}
                     >
-                      ✕ HAPUS
+                      ✕ REMOVE
                     </button>
                   </article>
                   );
@@ -140,10 +140,10 @@ export default function CartPage() {
 
                 <div className="cart-actions-row">
                   <button onClick={clearCart} className="btn btn-secondary clear-cart-btn">
-                    BERSIHKAN KERANJANG
+                    CLEAR CART
                   </button>
                   <Link href="/collection" className="btn btn-secondary continue-btn">
-                    LANJUTKAN BELANJA
+                    CONTINUE SHOPPING
                   </Link>
                 </div>
               </div>
@@ -151,7 +151,7 @@ export default function CartPage() {
               {/* Order Summary Sidebar */}
               <aside className="cart-summary-sidebar">
                 <div className="summary-card">
-                  <h3 className="summary-title">RINGKASAN PESANAN</h3>
+                  <h3 className="summary-title">ORDER SUMMARY</h3>
                   <div className="summary-divider"></div>
 
                   <div className="summary-row">
@@ -160,24 +160,24 @@ export default function CartPage() {
                   </div>
 
                   <div className="summary-row">
-                    <span>Estimasi Pengiriman</span>
-                    <span className="free-shipping">GRATIS</span>
+                    <span>Estimated Shipping</span>
+                    <span className="free-shipping">FREE</span>
                   </div>
 
                   <div className="summary-divider"></div>
 
                   <div className="summary-row total-row">
-                    <span>ESTIMASI TOTAL</span>
+                    <span>ESTIMATED TOTAL</span>
                     <span className="total-price">{formattedTotalPrice}</span>
                   </div>
 
                   <Link href="/checkout" className="btn btn-primary checkout-btn" style={{ textDecoration: 'none' }}>
-                    <span>LANJUTKAN KE PEMBAYARAN</span>
+                    <span>PROCEED TO CHECKOUT</span>
                     <span className="btn-sparkle">✦</span>
                   </Link>
 
                   <p className="checkout-note">
-                    🔒 Pemrosesan pesanan aman. Pengiriman cepat & terpercaya.
+                    🔒 Secure order processing. Fast & reliable shipping.
                   </p>
                 </div>
               </aside>

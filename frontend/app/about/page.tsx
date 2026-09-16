@@ -77,7 +77,7 @@ export default function AboutPage() {
             {story.image ? (
               <img src={story.image} alt="LILLO Handcrafted Details" loading="lazy" />
             ) : null}
-            <div className="howmade-badge">{story.imgBadge || 'EST. 2026 — BUATAN STUDIO LILLO'}</div>
+            <div className="howmade-badge">{story.imgBadge || 'EST. 2026 — LILLO STUDIO MADE'}</div>
           </div>
           <div className="about-story-copy">
             <p className="kicker">{story.kicker}</p>
@@ -137,14 +137,14 @@ export default function AboutPage() {
           </h2>
           <div className="about-closing-actions">
             <Link className="btn btn-primary magnetic" href={closing.primaryBtnLink || '/collection'}>
-              {closing.primaryBtnText || 'BELANJA KOLEKSI'}
+              {closing.primaryBtnText || 'SHOP COLLECTION'}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </Link>
             <Link className="btn-link magnetic" href={closing.secondaryBtnLink || '/contact'}>
-              {closing.secondaryBtnText || 'HUBUNGI KAMI'}
+              {closing.secondaryBtnText || 'CONTACT US'}
             </Link>
           </div>
         </section>

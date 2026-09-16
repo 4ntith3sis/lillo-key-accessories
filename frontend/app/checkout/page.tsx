@@ -46,13 +46,13 @@ export default function CheckoutPage() {
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'Masukkan nama lengkap kamu.';
+      newErrors.name = 'Please enter your full name.';
     }
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Masukkan nomor telepon kamu.';
+      newErrors.phone = 'Please enter your phone number.';
     }
     if (!formData.address.trim()) {
-      newErrors.address = 'Masukkan alamat pengiriman lengkap.';
+      newErrors.address = 'Please enter your full shipping address.';
     }
 
     setErrors(newErrors);
@@ -67,37 +67,37 @@ export default function CheckoutPage() {
   const validateStock = async (): Promise<string | null> => {
     for (const item of items) {
       if (!item || item.quantity <= 0) {
-        return 'Keranjang belanja kamu berisi item yang tidak valid.';
+        return 'Your shopping cart contains an invalid item.';
       }
       let liveProduct;
       try {
         liveProduct = await getProductById(item.product.id);
       } catch {
-        return 'Gagal memverifikasi stok saat ini. Silakan coba lagi.';
+        return 'Could not verify current stock. Please try again.';
       }
       if (!liveProduct) {
-        return `"${item.product.name}" sudah tidak tersedia. Silakan hapus dari keranjang.`;
+        return `"${item.product.name}" is no longer available. Please remove it from your cart.`;
       }
       try {
         const liveInventory = await getInventoryByProduct(item.product.id);
         const liveStock = liveInventory ? Math.max(0, Math.floor(liveInventory.stock)) : 0;
         if (item.quantity > liveStock) {
           return liveStock <= 0
-            ? `"${item.product.name}" saat ini stoknya habis. Silakan hapus dari keranjang.`
-            : `Beberapa produk tidak lagi tersedia dalam jumlah yang diminta. "${item.product.name}" tersisa ${liveStock} pcs — silakan sesuaikan keranjang kamu.`;
+            ? `"${item.product.name}" is currently out of stock. Please remove it from your cart.`
+            : `Some products are no longer available in the requested quantity. Only ${liveStock} pcs of "${item.product.name}" remain — please adjust your cart.`;
         }
       } catch {
-        return 'Gagal memverifikasi stok saat ini. Silakan coba lagi.';
+        return 'Could not verify current stock. Please try again.';
       }
     }
     return null;
   };
 
   const checkoutLabel = validating
-    ? 'MEMERIKSA STOK...'
+    ? 'CHECKING STOCK...'
     : submitting
-      ? 'MEMBUKA WHATSAPP...'
-      : 'PEMBAYARAN VIA WHATSAPP';
+      ? 'OPENING WHATSAPP...'
+      : 'PAY VIA WHATSAPP';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +121,7 @@ export default function CheckoutPage() {
     const res = getWhatsAppCheckoutUrl(formData, items, formattedTotalPrice);
 
     if (!res.url || res.error) {
-      setConfigError(res.error || 'Gagal membuat tautan WhatsApp.');
+      setConfigError(res.error || 'Failed to create the WhatsApp link.');
       setSubmitting(false);
       return;
     }
@@ -148,11 +148,11 @@ export default function CheckoutPage() {
       <main id="content" className="checkout-page-main" tabIndex={-1}>
         <div className="checkout-page-container">
           <div className="checkout-header-section">
-            <span className="checkout-small-label">LANGKAH TERAKHIR</span>
-            <h1 className="checkout-main-heading">PEMBAYARAN</h1>
+            <span className="checkout-small-label">FINAL STEP</span>
+            <h1 className="checkout-main-heading">CHECKOUT</h1>
             {items.length > 0 && (
               <p className="checkout-sub-heading">
-                Lengkapi data kamu di bawah ini untuk melakukan pemesanan langsung melalui WhatsApp.
+                Fill in your details below to place your order directly via WhatsApp.
               </p>
             )}
           </div>
@@ -161,12 +161,12 @@ export default function CheckoutPage() {
             /* Empty Cart Protection */
             <div className="checkout-empty-container">
               <div className="empty-icon-circle">🛒</div>
-              <h2 className="empty-title">KERANJANG BELANJA KOSONG</h2>
+              <h2 className="empty-title">YOUR SHOPPING CART IS EMPTY</h2>
               <p className="empty-sub">
-                Silakan tambahkan produk ke keranjang kamu sebelum melanjutkan ke pembayaran.
+                Please add products to your cart before proceeding to checkout.
               </p>
               <Link href="/collection" className="btn btn-primary continue-shopping-btn">
-                <span>KEMBALI KE TOKO</span>
+                <span>BACK TO SHOP</span>
                 <span className="btn-sparkle">✦</span>
               </Link>
             </div>
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
               {/* Left Column: Customer Information Form */}
               <div className="checkout-form-column">
                 <form onSubmit={handleSubmit} className="customer-info-form" noValidate>
-                  <h2 className="form-section-title">INFORMASI PELANGGAN</h2>
+                  <h2 className="form-section-title">CUSTOMER INFORMATION</h2>
 
                   {configError && (
                     <div className="config-error-alert">
@@ -186,14 +186,14 @@ export default function CheckoutPage() {
 
                   <div className="form-group">
                     <label htmlFor="name" className="form-label">
-                      NAMA LENGKAP <span className="required-star">*</span>
+                      FULL NAME <span className="required-star">*</span>
                     </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
                       className={`form-input ${errors.name ? 'input-error' : ''}`}
-                      placeholder="contoh: Alexandra Chen"
+                      placeholder="e.g. Alexandra Chen"
                       value={formData.name}
                       onChange={handleInputChange}
                     />
@@ -202,14 +202,14 @@ export default function CheckoutPage() {
 
                   <div className="form-group">
                     <label htmlFor="phone" className="form-label">
-                      NOMOR TELEPON <span className="required-star">*</span>
+                      PHONE NUMBER <span className="required-star">*</span>
                     </label>
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
                       className={`form-input ${errors.phone ? 'input-error' : ''}`}
-                      placeholder="contoh: 08123456789"
+                      placeholder="e.g. 08123456789"
                       value={formData.phone}
                       onChange={handleInputChange}
                     />
@@ -218,14 +218,14 @@ export default function CheckoutPage() {
 
                   <div className="form-group">
                     <label htmlFor="address" className="form-label">
-                      ALAMAT PENGIRIMAN <span className="required-star">*</span>
+                      SHIPPING ADDRESS <span className="required-star">*</span>
                     </label>
                     <textarea
                       id="address"
                       name="address"
                       rows={3}
                       className={`form-input form-textarea ${errors.address ? 'input-error' : ''}`}
-                      placeholder="Jalan, nomor rumah, kecamatan, kota, kode pos"
+                      placeholder="Street, house number, district, city, postal code"
                       value={formData.address}
                       onChange={handleInputChange}
                     />
@@ -234,14 +234,14 @@ export default function CheckoutPage() {
 
                   <div className="form-group">
                     <label htmlFor="notes" className="form-label">
-                      CATATAN <span className="optional-label">(OPSIONAL)</span>
+                      NOTES <span className="optional-label">(OPTIONAL)</span>
                     </label>
                     <textarea
                       id="notes"
                       name="notes"
                       rows={2}
                       className="form-input form-textarea"
-                      placeholder="Instruksi khusus atau catatan pengiriman"
+                      placeholder="Special instructions or delivery notes"
                       value={formData.notes}
                       onChange={handleInputChange}
                     />
@@ -263,7 +263,7 @@ export default function CheckoutPage() {
               {/* Right Column: Order Summary */}
               <aside className="checkout-summary-column">
                 <div className="summary-card">
-                  <h3 className="summary-title">RINGKASAN PESANAN</h3>
+                  <h3 className="summary-title">ORDER SUMMARY</h3>
                   <div className="summary-divider"></div>
 
                   {/* Item List */}
@@ -295,8 +295,8 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="summary-row">
-                    <span>Pengiriman</span>
-                    <span className="free-shipping">GRATIS</span>
+                    <span>Shipping</span>
+                    <span className="free-shipping">FREE</span>
                   </div>
 
                   <div className="summary-divider"></div>
@@ -319,7 +319,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <p className="checkout-note">
-                    📲 Menekan tombol bayar akan membuka WhatsApp dengan teks pesanan yang sudah terisi otomatis.
+                    📲 Pressing the pay button will open WhatsApp with your order text pre-filled.
                   </p>
                 </div>
               </aside>

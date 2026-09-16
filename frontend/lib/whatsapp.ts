@@ -14,30 +14,30 @@ export const generateWhatsAppOrderMessage = (
   items: CartItem[],
   formattedTotal: string
 ): string => {
-  let message = `Hello LILLO, I would like to place an order.\n\n`;
-  message += `*CUSTOMER DETAILS*\n`;
-  message += `Name: ${customer.name.trim()}\n`;
-  message += `Phone: ${customer.phone.trim()}\n`;
-  message += `Address: ${customer.address.trim()}\n\n`;
+  let message = `Halo LILLO, saya ingin memesan.\n\n`;
+  message += `*DETAIL PELANGGAN*\n`;
+  message += `Nama: ${customer.name.trim()}\n`;
+  message += `No. HP: ${customer.phone.trim()}\n`;
+  message += `Alamat: ${customer.address.trim()}\n\n`;
 
-  message += `*ORDER DETAILS*\n`;
+  message += `*DETAIL PESANAN*\n`;
   items.forEach((item, index) => {
     const unitPriceNum = cartItemUnitPrice(item);
     const subtotalStr = formatPrice(unitPriceNum * item.quantity);
     message += `${index + 1}. ${item.product.name}\n`;
-    message += `   Qty: ${item.quantity}\n`;
-    message += `   Price: ${formatPrice(unitPriceNum)}\n`;
+    message += `   Jumlah: ${item.quantity}\n`;
+    message += `   Harga: ${formatPrice(unitPriceNum)}\n`;
     message += `   Subtotal: ${subtotalStr}\n\n`;
   });
 
   message += `*TOTAL: ${formattedTotal}*\n`;
 
   if (customer.notes && customer.notes.trim().length > 0) {
-    message += `\nNotes:\n${customer.notes.trim()}\n`;
+    message += `\nCatatan:\n${customer.notes.trim()}\n`;
   }
 
-  message += `\nPlease provide information regarding availability and payment details.\n`;
-  message += `\nThank you.`;
+  message += `\nMohon informasi mengenai ketersediaan dan detail pembayarannya.\n`;
+  message += `\nTerima kasih.`;
 
   return message;
 };

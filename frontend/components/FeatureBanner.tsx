@@ -40,7 +40,7 @@ export default function FeatureBanner({ content }: FeatureBannerProps) {
             </svg>
           </Link>
           <Link className="btn-link magnetic" href="/collection">
-            JELAJAHI KOLEKSI
+            EXPLORE THE COLLECTION
           </Link>
         </div>
       </div>

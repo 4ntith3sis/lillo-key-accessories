@@ -18,22 +18,22 @@ export default function Footer() {
               LILLO<span className="dot">.</span>
             </Link>
             <p className="footer-tagline">
-              Gantungan kunci & charm penuh makna untuk menemani harimu dengan karakter dan keceriaan.
+              Meaningful keychains & charms to accompany your days with character and joy.
             </p>
             <div className="newsletter-block">
-              <p className="newsletter-label">BERGABUNGLAH DENGAN KAMI UNTUK RILIS EKSKLUSIF</p>
+              <p className="newsletter-label">JOIN US FOR EXCLUSIVE DROPS</p>
               <form
                 className="newsletter-form"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  alert('Terima kasih telah berlangganan LILLO!');
+                  alert('Thank you for subscribing to LILLO!');
                 }}
               >
                 <input
                   type="email"
-                  placeholder="Masukkan email kamu"
+                  placeholder="Enter your email"
                   required
-                  aria-label="Masukkan email kamu untuk buletin"
+                  aria-label="Enter your email for the newsletter"
                 />
                 <button type="submit" aria-label="Subscribe">
                   <svg
@@ -73,32 +73,32 @@ export default function Footer() {
           {/* Navigation Links Grid */}
           <div className="footer-links-grid">
             <div className="footer-nav-col">
-              <h4 className="footer-col-title">KOLEKSI</h4>
+              <h4 className="footer-col-title">COLLECTION</h4>
               <ul className="footer-nav-list">
-                <li><Link href="/collection">Semua Gantungan Kunci</Link></li>
-                <li><Link href="/collection">Token Keberuntungan</Link></li>
-                <li><Link href="/collection">Charm Hewan</Link></li>
-                <li><Link href="/collection">Seri Mitos</Link></li>
-                <li><Link href="/collection">Edisi Studio</Link></li>
+                <li><Link href="/collection">All Keychains</Link></li>
+                <li><Link href="/collection">Luck Tokens</Link></li>
+                <li><Link href="/collection">Animal Charms</Link></li>
+                <li><Link href="/collection">Myth Series</Link></li>
+                <li><Link href="/collection">Studio Editions</Link></li>
               </ul>
             </div>
 
             <div className="footer-nav-col">
-              <h4 className="footer-col-title">JELAJAHI</h4>
+              <h4 className="footer-col-title">EXPLORE</h4>
               <ul className="footer-nav-list">
-                <li><Link href="/">Beranda</Link></li>
-                <li><Link href="/about">Cerita Kami</Link></li>
-                <li><Link href="/collection">Koleksi Charm</Link></li>
-                <li><Link href="/about">Kerajinan</Link></li>
+                <li><Link href="/">Home</Link></li>
+                <li><Link href="/about">Our Story</Link></li>
+                <li><Link href="/collection">Charm Collection</Link></li>
+                <li><Link href="/about">Craftsmanship</Link></li>
               </ul>
             </div>
 
             <div className="footer-nav-col">
-              <h4 className="footer-col-title">BANTUAN</h4>
+              <h4 className="footer-col-title">HELP</h4>
               <ul className="footer-nav-list">
-                <li><Link href="/contact">Hubungi Kami</Link></li>
-                <li><Link href="/contact">Informasi Pengiriman</Link></li>
-                <li><Link href="/contact">Panduan Perawatan</Link></li>
+                <li><Link href="/contact">Contact Us</Link></li>
+                <li><Link href="/contact">Shipping Info</Link></li>
+                <li><Link href="/contact">Care Guide</Link></li>
               </ul>
             </div>
           </div>
@@ -106,10 +106,10 @@ export default function Footer() {
 
         {/* Bottom Copyright Bar */}
         <div className="footer-bottom-bar">
-          <p className="footer-copy">&copy; 2026 LILLO. Hak cipta dilindungi undang-undang. Dibuat dengan presisi tinggi untuk para kolektor.</p>
+          <p className="footer-copy">&copy; 2026 LILLO. All rights reserved. Crafted with precision for collectors.</p>
           <div className="footer-bottom-actions">
             <button type="button" className="back-to-top-btn" onClick={scrollToTop}>
-              <span>KEMBALI KE ATAS</span>
+              <span>BACK TO TOP</span>
               <span className="arrow">↑</span>
             </button>
           </div>

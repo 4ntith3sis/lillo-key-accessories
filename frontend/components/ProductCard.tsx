@@ -14,7 +14,7 @@ export default function ProductCard({
   product,
   isSelected = false,
   onClick,
-  actionLabel = 'LIHAT DETAIL',
+  actionLabel = 'VIEW DETAILS',
 }: ProductCardProps) {
   const cardContent = (
     <article
@@ -24,7 +24,7 @@ export default function ProductCard({
       onClick={onClick}
     >
       <div className="card-image-box">
-        <span className="active-pill-badge">PRATINJAU</span>
+        <span className="active-pill-badge">PREVIEW</span>
         {product.hasImage && product.image ? (
           <img
             src={product.image}
@@ -41,7 +41,7 @@ export default function ProductCard({
           className="card-image-placeholder"
           style={{ display: product.hasImage && product.image ? 'none' : 'flex' }}
         >
-          <span>GAMBAR SEGERA HADIR</span>
+            <span>IMAGE COMING SOON</span>
         </div>
       </div>
       <div className="card-info-box">

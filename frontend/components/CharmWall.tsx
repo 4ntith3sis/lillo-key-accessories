@@ -914,27 +914,27 @@ export default function CharmWall() {
 
         {/* Initial Overlay (Corridor Walk Start) */}
         <div className="wall-copy wall-in" ref={copyInRef}>
-          <p className="kicker">PAPAN CHARM LILLO</p>
+          <p className="kicker">LILLO CHARM BOARD</p>
           <h2 id="wallHead" className="w-big">
-            <span className="w-word">JELAJAHI KOLEKSI CHARM</span>
+            <span className="w-word">EXPLORE THE CHARM COLLECTION</span>
           </h2>
           <p className="w-flat" id="wallFlatLine">
-            Setiap charm memiliki ceritanya sendiri. Jelajahi koleksinya, temukan yang mewakili dirimu, dan bawa bersama harimu.
+            Every charm carries its own story. Browse the collection, find the one that represents you, and carry it through your day.
           </p>
         </div>
 
         {/* Ending Overlay (Wall Gathered) */}
         <div className="wall-copy wall-out" ref={copyOutRef} aria-hidden="true">
-          <p className="kicker">PAPAN CHARM LILLO</p>
+          <p className="kicker">LILLO CHARM BOARD</p>
           <h2>
-            SEMUANYA ADA DI SINI. <em id="wallTakeLine">TEMUKAN FAVORITMU SEKARANG.</em>
+            ALL IN ONE PLACE. <em id="wallTakeLine">FIND YOUR FAVORITE NOW.</em>
           </h2>
           <button
             type="button"
             className="btn btn-ghost"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            Kembali ke Atas ↑
+            Back to Top ↑
           </button>
         </div>
 

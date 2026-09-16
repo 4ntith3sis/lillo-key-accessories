@@ -39,7 +39,7 @@ export default function Craftsmanship({ content }: CraftsmanshipProps) {
                 }}
               />
             ) : null}
-            <div className="howmade-badge">{c.imgBadge || 'EST. 2026 — BUATAN STUDIO LILLO'}</div>
+            <div className="howmade-badge">{c.imgBadge || 'EST. 2026 — LILLO STUDIO MADE'}</div>
           </div>
 
           {/* Process steps */}

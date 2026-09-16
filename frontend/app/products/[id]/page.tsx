@@ -60,7 +60,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       }
     } catch (err: unknown) {
       console.warn(`Failed to fetch product ${productId}:`, err);
-      setError('Gagal memuat produk ini. Silakan coba lagi.');
+      setError('Failed to load this product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className="product-detail-container">
           <div className="detail-breadcrumb">
             <Link href="/collection" className="back-link">
-              ← KEMBALI KE KOLEKSI
+              ← BACK TO COLLECTION
             </Link>
           </div>
 
@@ -117,7 +117,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             <div className="product-detail-layout loading-skeleton">
               <div className="detail-image-column">
                 <div className="product-detail-image-box skeleton-box">
-                  <span>Memuat Gambar Produk...</span>
+                  <span>Loading Product Image...</span>
                 </div>
               </div>
               <div className="detail-info-column">
@@ -130,17 +130,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </div>
           ) : notFound ? (
             <div className="product-detail-not-found">
-              <h2>PRODUK TIDAK DITEMUKAN</h2>
-              <p>Produk yang kamu cari tidak ada atau telah dihapus.</p>
+              <h2>PRODUCT NOT FOUND</h2>
+              <p>The product you are looking for does not exist or has been removed.</p>
               <Link href="/collection" className="btn btn-secondary">
-                KEMBALI KE TOKO
+                BACK TO SHOP
               </Link>
             </div>
           ) : error ? (
             <div className="product-detail-error">
               <p className="error-text">{error}</p>
               <button onClick={fetchProduct} className="btn btn-secondary">
-                COBA LAGI
+                TRY AGAIN
               </button>
             </div>
           ) : product ? (
@@ -164,7 +164,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     className="card-image-placeholder"
                     style={{ display: product.hasImage && product.image ? 'none' : 'flex' }}
                   >
-                    <span>GAMBAR SEGERA HADIR</span>
+                    <span>IMAGE COMING SOON</span>
                   </div>
                 </div>
               </div>
@@ -181,23 +181,23 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div className="detail-stock-section" style={{ marginBottom: '20px' }}>
                   <div className={`detail-stock-badge ${isOutOfStock ? 'out' : 'in'}`}>
                     <span className="stock-dot" aria-hidden="true" />
-                    <span>{isOutOfStock ? 'STOK HABIS' : `STOK: TERSEDIA ${stock} UNIT`}</span>
+                    <span>{isOutOfStock ? 'OUT OF STOCK' : `STOCK: ${stock} UNITS AVAILABLE`}</span>
                   </div>
                 </div>
 
                 <div className="detail-description-section">
-                  <h3 className="detail-section-title">DESKRIPSI</h3>
+                  <h3 className="detail-section-title">DESCRIPTION</h3>
                   <p className="detail-description-text">
                     {rawProduct?.description ||
-                      `Gantungan kunci & charm ${product.name} buatan tangan yang dirancang untuk memberikan sentuhan karakter unik dan energi positif pada barang-barang harianmu. Lapisan akhir tahan lama dengan presisi pengerjaan logam.`}
+                      `Handmade ${product.name} keychain & charm designed to add a unique touch of character and positive energy to your everyday carry. Durable finish with precise metalwork.`}
                   </p>
                 </div>
 
                 {/* Material section */}
                 <div className="detail-material-section">
-                  <h3 className="detail-section-title">MATERIAL & KERAJINAN</h3>
+                  <h3 className="detail-section-title">MATERIAL & CRAFTSMANSHIP</h3>
                   <p className="detail-material-text">
-                    Enamel resin berkualitas tinggi, cincin klem lapis perak 925, & tali anyam buatan tangan.
+                    High-quality resin enamel, 925 silver-plated clamp ring, & handmade braided cord.
                   </p>
                 </div>
 
@@ -207,7 +207,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div className="detail-action-box">
                   {!addDisabled && (
                     <div className="detail-qty-row">
-                      <span className="qty-label">JUMLAH</span>
+                      <span className="qty-label">QTY</span>
                       <div className="qty-controls">
                         <button
                           type="button"
@@ -227,7 +227,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                           +
                         </button>
                       </div>
-                      <span className="detail-qty-hint">MAKS {stock}</span>
+                      <span className="detail-qty-hint">MAX {stock}</span>
                     </div>
                   )}
                   <button
@@ -238,17 +238,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   >
                     <span>
                       {addedToCartToast
-                        ? 'BERHASIL DITAMBAHKAN ✓'
+                        ? 'ADDED ✓'
                         : isOutOfStock
-                          ? 'STOK HABIS'
-                          : 'TAMBAHKAN KE KERANJANG'}
+                          ? 'OUT OF STOCK'
+                          : 'ADD TO CART'}
                     </span>
                     <span className="btn-sparkle">✦</span>
                   </button>
 
                   {addedToCartToast && (
                     <div className="toast-notification">
-                      <span>✓ Berhasil menambahkan {product.name} ke keranjang!</span>
+                      <span>✓ Successfully added {product.name} to cart!</span>
                     </div>
                   )}
                 </div>
@@ -257,15 +257,15 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div className="detail-features-grid">
                   <div className="detail-feature-item">
                     <span className="feature-icon">🚚</span>
-                    <span className="feature-text">Gratis Ongkir Min. 2 Pcs</span>
+                    <span className="feature-text">Free Shipping Min. 2 Pcs</span>
                   </div>
                   <div className="detail-feature-item">
                     <span className="feature-icon">✨</span>
-                    <span className="feature-text">Finis Resin Enamel & Perak</span>
+                    <span className="feature-text">Enamel Resin Finish & Silver</span>
                   </div>
                   <div className="detail-feature-item">
                     <span className="feature-icon">🎁</span>
-                    <span className="feature-text">Kotak Hadiah & Kartu Original</span>
+                    <span className="feature-text">Gift Box & Original Card</span>
                   </div>
                 </div>
               </div>

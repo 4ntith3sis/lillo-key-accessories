@@ -33,25 +33,25 @@ export default function AdminNavbar() {
         <span className="admin-menu-label">MENU</span>
         <nav className="admin-nav-links">
           <Link href="/admin" className={`admin-nav-item ${isOverview ? 'active' : ''}`}>
-            Ringkasan
+            Overview
           </Link>
           <Link href="/admin/products" className={`admin-nav-item ${isProducts ? 'active' : ''}`}>
-            Produk
+            Products
           </Link>
           <Link href="/admin/categories" className={`admin-nav-item ${isCategories ? 'active' : ''}`}>
-            Kategori
+            Categories
           </Link>
           <Link href="/admin/inventory" className={`admin-nav-item ${isInventory ? 'active' : ''}`}>
-            Stok Inventory
+            Inventory Stock
           </Link>
           <Link href="/admin/cms" className={`admin-nav-item ${isCms || isHomepage || isAbout ? 'active' : ''}`}>
-            Editor CMS
+            CMS Editor
           </Link>
         </nav>
 
         <div className="admin-header-actions">
           <Link href="/" className="admin-website-btn" target="_blank">
-            <span>Lihat Website</span>
+            <span>View Website</span>
             <span className="external-icon">↗</span>
           </Link>
           <button
@@ -59,7 +59,7 @@ export default function AdminNavbar() {
             className="action-btn delete-btn"
             type="button"
           >
-            Keluar
+            Log Out
           </button>
         </div>
       </div>

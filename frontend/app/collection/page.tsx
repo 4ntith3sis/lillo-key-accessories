@@ -43,7 +43,7 @@ function CollectionContent() {
       setCategories(rawCategories);
     } catch (err: unknown) {
       console.warn('Failed to load collection data:', err);
-      setError('Gagal memuat koleksi. Silakan coba lagi.');
+      setError('Failed to load the collection. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ function CollectionContent() {
   });
 
   const activeCategoryName = currentCategoryQuery === 'all'
-    ? 'SEMUA PRODUK'
+    ? 'ALL PRODUCTS'
     : categories.find((c) => c.slug === currentCategoryQuery || c.$id === currentCategoryQuery)?.name.toUpperCase() || currentCategoryQuery.toUpperCase();
 
   return (
@@ -116,10 +116,10 @@ function CollectionContent() {
       <main id="content" className="collection-page-main" tabIndex={-1}>
         <section className="collection-hero-banner">
           <div className="collection-banner-container">
-            <span className="collection-small-label">KATALOG & ARSIP</span>
-            <h1 className="collection-main-heading">KOLEKSI</h1>
+            <span className="collection-small-label">CATALOG & ARCHIVE</span>
+            <h1 className="collection-main-heading">COLLECTION</h1>
             <p className="collection-sub-heading">
-              Jelajahi gantungan kunci dan aksesoris buatan tangan yang dirancang untuk melengkapi barang-barang pentingmu.
+              Explore handmade keychains and accessories designed to complement your everyday essentials.
             </p>
           </div>
         </section>
@@ -137,7 +137,7 @@ function CollectionContent() {
               <div className="collection-meta-bar">
                 <span className="active-category-label">{activeCategoryName}</span>
                 <span className="product-count-badge">
-                  {loading ? 'MEMUAT...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'PRODUK' : 'PRODUK'}`}
+                  {loading ? 'LOADING...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'PRODUCT' : 'PRODUCTS'}`}
                 </span>
               </div>
 
@@ -146,11 +146,11 @@ function CollectionContent() {
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <article key={i} className="lillo-product-card" style={{ pointerEvents: 'none' }}>
                       <div className="card-image-box" style={{ background: 'radial-gradient(circle, #FAF8F5 0%, #EFECE6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Memuat...</span>
+                        <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Loading...</span>
                       </div>
                       <div className="card-info-box">
                         <span className="card-category">...</span>
-                        <h3 className="card-title">Memuat Produk</h3>
+                        <h3 className="card-title">Loading Product</h3>
                         <div className="card-price">--.--</div>
                       </div>
                     </article>
@@ -160,12 +160,12 @@ function CollectionContent() {
                 <div className="collection-error-box">
                   <p className="error-message">{error}</p>
                   <button onClick={fetchCollectionData} className="btn btn-secondary retry-btn">
-                    Coba Lagi
+                    Try Again
                   </button>
                 </div>
               ) : filteredProducts.length === 0 ? (
                 <div className="collection-empty-box">
-                  <p className="empty-message">Tidak ada produk yang ditemukan dalam koleksi ini.</p>
+                  <p className="empty-message">No products found in this collection.</p>
                 </div>
               ) : (
                 <div className="product-cards-grid">
@@ -173,7 +173,7 @@ function CollectionContent() {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      actionLabel="LIHAT DETAIL"
+                      actionLabel="VIEW DETAILS"
                     />
                   ))}
                 </div>
