@@ -130,6 +130,36 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Care Guide */}
+        <section id="care-guide" className="about-values-section">
+          <div className="about-timeline-header">
+            <span className="collection-small-label">CARE GUIDE</span>
+            <h2 className="collection-main-heading">Keep your charms looking new.</h2>
+          </div>
+          <div className="about-values-grid care-guide-grid">
+            <div className="about-value-card">
+              <span className="about-value-icon">✦</span>
+              <h3>Wipe gently</h3>
+              <p>Clean your charm with a soft dry cloth after use to remove dust, fingerprints, and moisture.</p>
+            </div>
+            <div className="about-value-card">
+              <span className="about-value-icon">●</span>
+              <h3>Keep it dry</h3>
+              <p>Although the resin coating resists water, avoid soaking charms or wearing them while swimming.</p>
+            </div>
+            <div className="about-value-card">
+              <span className="about-value-icon">◆</span>
+              <h3>Store separately</h3>
+              <p>Keep each charm in its own pouch or compartment so metal parts don&apos;t scratch each other.</p>
+            </div>
+            <div className="about-value-card">
+              <span className="about-value-icon">♥</span>
+              <h3>Avoid chemicals</h3>
+              <p>Keep charms away from perfume, alcohol, and cleaning agents to protect the enamel and plating.</p>
+            </div>
+          </div>
+        </section>
+
         {/* Closing */}
         <section className="about-closing">
           <h2>

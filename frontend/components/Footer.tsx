@@ -57,7 +57,7 @@ export default function Footer() {
                 <li><Link href="/">Home</Link></li>
                 <li><Link href="/about">Our Story</Link></li>
                 <li><Link href="/collection">Charm Collection</Link></li>
-                <li><Link href="/about">Craftsmanship</Link></li>
+                <li><Link href="/#about">Craftsmanship</Link></li>
               </ul>
             </div>
 
@@ -66,7 +66,7 @@ export default function Footer() {
               <ul className="footer-nav-list">
                 <li><Link href="/contact">Contact Us</Link></li>
                 <li><Link href="/contact">Shipping Info</Link></li>
-                <li><Link href="/contact">Care Guide</Link></li>
+                <li><Link href="/about#care-guide">Care Guide</Link></li>
               </ul>
             </div>
           </div>
