@@ -578,6 +578,80 @@ nav.scrolled {
 }
 
 /* ==========================================================================
+   CHARM 2 — second floating hero-style charm (fixed overlay, right side).
+   Isolated selectors (lillo-charm-2*) so Hero Charm styles are untouched.
+   Visual language mirrors Hero: keyring + cord + crimp SVG, same image
+   source, same drop-shadow, same ambient float timing.
+   ========================================================================== */
+.lillo-charm-2 {
+  position: fixed;
+  top: 40%;
+  right: max(20px, calc((100vw - 1400px) / 2 + 44px));
+  z-index: 40;
+  width: 190px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+.lillo-charm-2__float {
+  animation: charm2Float 6.5s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes charm2Float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+.lillo-charm-2__sway {
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.lillo-charm-2__cord {
+  display: block;
+  width: 34px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+.lillo-charm-2__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: -6px;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.16));
+}
+@media (max-width: 1024px) {
+  .lillo-charm-2 {
+    top: 38%;
+    right: 20px;
+    width: 150px;
+  }
+}
+@media (max-width: 640px) {
+  .lillo-charm-2 {
+    top: 36%;
+    right: 12px;
+    width: clamp(96px, 30vw, 132px);
+  }
+  .lillo-charm-2__cord {
+    width: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lillo-charm-2__float {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
    #WALL SECTION (CHARMLING 25 CHARMS 3D PERSPECTIVE CORRIDOR & GATHER WALL)
    ========================================================================== */
 #wall {

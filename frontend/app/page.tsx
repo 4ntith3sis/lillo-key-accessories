@@ -5,6 +5,7 @@ import CharmWall from '@/components/CharmWall';
 import ProductPreview from '@/components/ProductPreview';
 import FeatureBanner from '@/components/FeatureBanner';
 import Craftsmanship from '@/components/Craftsmanship';
+import Charm2 from '@/components/Charm2';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
 import { headers } from 'next/headers';
@@ -53,6 +54,8 @@ export default async function Home() {
           <Hero content={cmsContent.hero} />
           <CharmWall />
           <ProductPreview categoryHeader={cmsContent.categorySection} />
+          {/* Charm 2: fixed overlay, hero-style second charm (no layout impact) */}
+          <Charm2 heroImage={cmsContent.hero.heroImage} />
         </ActiveProductProvider>
         <FeatureBanner content={cmsContent.brandStatement} />
         <Craftsmanship content={cmsContent.craftsmanship} />
