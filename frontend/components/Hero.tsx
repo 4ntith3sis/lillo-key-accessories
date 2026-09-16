@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/homepage';
 import { useActiveProduct } from '@/context/ActiveProductContext';
@@ -25,6 +25,17 @@ export default function Hero({ content }: HeroProps) {
   const crimpRef = useRef<SVGGElement>(null);
   const cordPathRef = useRef<SVGPathElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
+
+  // Image loading state: keep the charm hidden until its src has actually
+  // loaded, so a slow or invalid src (e.g. a stale CMS heroImage) never
+  // flashes a broken-image icon. Layout/dimensions are preserved while hidden.
+  const heroSrc = activeProduct?.image || c.heroImage;
+  const [heroImgVisible, setHeroImgVisible] = useState(false);
+  useEffect(() => {
+    setHeroImgVisible(false);
+    const el = charmRef.current;
+    if (el && el.complete && el.naturalWidth > 0) setHeroImgVisible(true);
+  }, [heroSrc]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -362,21 +373,23 @@ export default function Hero({ content }: HeroProps) {
             </g>
           </svg>
 
-          {activeProduct?.image || c.heroImage ? (
+          {heroSrc ? (
             <div className="charm-float">
               <img
                 id="heroCharm"
                 ref={charmRef}
-                src={activeProduct?.image || c.heroImage}
+                src={heroSrc}
                 alt={activeProduct?.name || 'LILLO Interactive Keychain Charm — pull me!'}
                 draggable={false}
                 width={172}
-                style={{ width: '172px', height: 'auto', objectFit: 'contain' }}
+                style={{ width: '172px', height: 'auto', objectFit: 'contain', visibility: heroImgVisible ? 'visible' : 'hidden' }}
+                onLoad={() => setHeroImgVisible(true)}
+                onError={() => setHeroImgVisible(false)}
               />
             </div>
           ) : null}
           <div className="pg-hint" id="pgHint" ref={hintRef}>
-            tarik saya &darr;
+            pull me &darr;
           </div>
         </div>
       </div>
