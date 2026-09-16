@@ -122,7 +122,7 @@ export default function Charm2({ heroImage }: Charm2Props) {
     <div ref={rootRef} className="lillo-charm-2" aria-hidden="true">
       <div className="lillo-charm-2__float">
         <div ref={swayRef} className="lillo-charm-2__sway">
-          <svg className="lillo-charm-2__cord" viewBox="-14 -8 28 108" aria-hidden="true">
+          <svg className="lillo-charm-2__cord" viewBox="-14 -8 28 237" aria-hidden="true">
             <defs>
               <linearGradient id="c2Silver" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#ffffff" />
@@ -138,9 +138,9 @@ export default function Charm2({ heroImage }: Charm2Props) {
             <g filter="url(#c2Shadow)">
               <circle cx="0" cy="0" r="6" fill="none" stroke="url(#c2Silver)" strokeWidth="2.8" />
               <circle cx="0" cy="0" r="3" fill="#1f1f24" />
-              <line x1="0" y1="6" x2="0" y2="72" stroke="#161619" strokeWidth="3.2" strokeLinecap="round" />
-              <rect x="-4" y="72" width="8" height="12" rx="2" fill="url(#c2Silver)" stroke="#334155" strokeWidth="0.9" />
-              <circle cx="0" cy="88" r="4" fill="none" stroke="url(#c2Silver)" strokeWidth="2" />
+              <line x1="0" y1="6" x2="0" y2="202" stroke="#161619" strokeWidth="3.2" strokeLinecap="round" />
+              <rect x="-4" y="202" width="8" height="12" rx="2" fill="url(#c2Silver)" stroke="#334155" strokeWidth="0.9" />
+              <circle cx="0" cy="218" r="4" fill="none" stroke="url(#c2Silver)" strokeWidth="2" />
             </g>
           </svg>
           {src ? (
