@@ -401,12 +401,14 @@ export async function deleteCategory(id: string): Promise<boolean> {
   return true;
 }
 
-export async function getHomepageContent(): Promise<import('@/types/homepage').HomepageContent> {
-  const res = await fetch(`${API_BASE_URL}/api/homepage`, {
+export async function getHomepageContent(baseUrl?: string): Promise<import('@/types/homepage').HomepageContent> {
+  const base = (baseUrl && baseUrl.startsWith('http') ? baseUrl : API_BASE_URL).replace(/\/+$/, '');
+  const res = await fetch(`${base}/api/homepage`, {
     cache: 'no-store',
   });
   const json: ApiResponse<import('@/types/homepage').HomepageContent> = await res.json();
   if (!res.ok || !json.success || !json.data) {
+    console.error(`[CMS] /api/homepage unavailable from ${base} (HTTP ${res.status}) — serving default content.`);
     const { DEFAULT_HOMEPAGE_CONTENT } = await import('@/types/homepage');
     return DEFAULT_HOMEPAGE_CONTENT;
   }

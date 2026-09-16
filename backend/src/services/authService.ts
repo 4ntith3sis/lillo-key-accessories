@@ -1,7 +1,18 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Client, Account, Users } from 'node-appwrite';
 import { appwriteClient, isAppwriteConfigured } from '../config/appwrite.js';
 import { env } from '../config/env.js';
 
+// Appwrite cloud no longer returns a usable `secret` for server-side created
+// email sessions (the field comes back empty), so the cookie session secret
+// is issued by this backend: an HMAC token keyed with the backend-only
+// Appwrite API key. Identity and the admin role still come from Appwrite
+// (email/password check + user labels); only the session token format changed.
+const ADMIN_TOKEN_PREFIX = 'ltv1.';
+const ADMIN_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // match cookie maxAge
+
+const signTokenPayload = (payload: string): string =>
+  createHmac('sha256', env.appwrite.apiKey || 'lillo-dev-key').update(payload).digest('base64url');
 
 export interface AdminUser {
   id: string;
@@ -20,6 +31,30 @@ export class AuthService {
     if (env.appwrite.projectId) client.setProject(env.appwrite.projectId);
     if (sessionSecret) client.setSession(sessionSecret);
     return client;
+  }
+
+  private issueAdminToken(userId: string): string {
+    const payload = Buffer.from(
+      JSON.stringify({ uid: userId, iat: Date.now(), exp: Date.now() + ADMIN_TOKEN_TTL_MS }),
+    ).toString('base64url');
+    return `${ADMIN_TOKEN_PREFIX}${payload}.${signTokenPayload(payload)}`;
+  }
+
+  private verifyAdminToken(token: string): string | null {
+    const body = token.slice(ADMIN_TOKEN_PREFIX.length);
+    const [payload, signature] = body.split('.');
+    if (!payload || !signature) return null;
+    const expected = signTokenPayload(payload);
+    const a = Buffer.from(signature, 'base64url');
+    const b = Buffer.from(expected, 'base64url');
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+    try {
+      const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+      if (typeof data?.uid !== 'string' || Date.now() > data.exp) return null;
+      return data.uid;
+    } catch {
+      return null;
+    }
   }
 
   async loginAdmin(email: string, password: string): Promise<{ sessionSecret: string; user: AdminUser }> {
@@ -45,17 +80,21 @@ export class AuthService {
         const isAdmin = hasAdminLabel || Boolean(isDevAdminEmail);
 
         if (!isAdmin) {
-          // Delete created session if non-admin user attempts admin login
-          const sessionClient = this.createSessionClient(session.secret);
-          const sessionAccount = new Account(sessionClient);
-          await sessionAccount.deleteSession({ sessionId: 'current' }).catch(() => {});
+          // Delete the verification session (server API key) before denying access
+          await users.deleteSession({ userId: user.$id, sessionId: session.$id }).catch(() => {});
           throw new Error('ADMIN_ACCESS_REQUIRED');
         }
 
-        invalidatedTokens.delete(session.secret);
+        // 3. Issue the backend session token. Appwrite no longer returns a
+        //    usable session `secret` for server-side session creation, so the
+        //    cookie value is an HMAC token issued/verified by this backend.
+        const adminToken = this.issueAdminToken(user.$id);
+        invalidatedTokens.delete(adminToken);
+        // The email session above was only for credential verification; clean it up.
+        users.deleteSession({ userId: user.$id, sessionId: session.$id }).catch(() => {});
 
         return {
-          sessionSecret: session.secret,
+          sessionSecret: adminToken,
           user: {
             id: user.$id,
             email: user.email,
@@ -110,6 +149,29 @@ export class AuthService {
       };
     }
 
+    // Backend-issued HMAC admin token (ltv1.*) — the cookie value since
+    // Appwrite stopped returning session secrets for server-side sessions.
+    if (sessionSecret.startsWith(ADMIN_TOKEN_PREFIX)) {
+      const uid = this.verifyAdminToken(sessionSecret);
+      if (!uid || !isAppwriteConfigured()) return null;
+      try {
+        const users = new Users(appwriteClient);
+        const u = await users.get({ userId: uid });
+        const isAdmin =
+          (Array.isArray(u.labels) && u.labels.includes('admin')) ||
+          Boolean(env.adminEmail && u.email.toLowerCase() === env.adminEmail.toLowerCase());
+        if (!isAdmin) return null;
+        return {
+          id: u.$id,
+          email: u.email,
+          name: u.name || 'Admin',
+          isAdmin: true,
+        };
+      } catch {
+        return null;
+      }
+    }
+
     if (!isAppwriteConfigured()) return null;
 
     try {
@@ -141,7 +203,8 @@ export class AuthService {
 
     invalidatedTokens.add(sessionSecret);
 
-    if (isAppwriteConfigured() && !sessionSecret.startsWith('dev_admin_session_')) {
+    const isBackendToken = sessionSecret.startsWith(ADMIN_TOKEN_PREFIX);
+    if (isAppwriteConfigured() && !sessionSecret.startsWith('dev_admin_session_') && !isBackendToken) {
       try {
         const client = this.createSessionClient(sessionSecret);
         const account = new Account(client);
