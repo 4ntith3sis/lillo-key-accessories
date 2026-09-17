@@ -10,6 +10,7 @@
 **/.env.local
 **/.env.*.local
 VERCEL_ENV_IMPORT.env
+VERCEL_ENV_VARIABLES.md
 *.env.import
 
 # --- Node Dependencies ---
