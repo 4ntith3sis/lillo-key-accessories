@@ -1,0 +1,66 @@
+# ============================================================
+# ROOT-LEVEL .gitignore — LILLO Key Accessories
+# ============================================================
+
+# --- Environment Secrets (NEVER commit) ---
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+VERCEL_ENV_IMPORT.env
+VERCEL_ENV_VARIABLES.md
+*.env.import
+
+# --- Node Dependencies ---
+node_modules/
+**/node_modules/
+
+# --- Build Outputs ---
+dist/
+**/dist/
+.next/
+**/.next/
+out/
+**/out/
+build/
+**/build/
+
+# --- TypeScript Build Info ---
+*.tsbuildinfo
+**/*.tsbuildinfo
+next-env.d.ts
+**/next-env.d.ts
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+**/logs/
+
+# --- OS & Editor Files ---
+.DS_Store
+**/.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Package Manager ---
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# --- Misc ---
+*.pem
+.vercel
+coverage/
+**/coverage/
