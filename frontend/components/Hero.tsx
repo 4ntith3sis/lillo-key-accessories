@@ -121,19 +121,24 @@ export default function Hero({ content }: HeroProps) {
     };
 
     const render = () => {
-      const cw = 155;
+      // Center the charm from its measured render width so responsive CSS
+      // sizing (e.g. mobile clamp) stays in sync with the physics point.
+      const charmEl = charmRef.current;
+      const cw = charmEl && charmEl.offsetWidth > 0 ? charmEl.offsetWidth : 155;
       const dx = pos.x - anchor.x;
       const dy = pos.y - anchor.y;
       const tilt = Math.atan2(dx, Math.max(dy, 40)) * -28;
       const turn = Math.max(-38, Math.min(38, vel.x * 0.055));
 
-      const charmEl = charmRef.current;
       if (charmEl) {
         charmEl.style.transform = `translate(${pos.x - cw / 2}px, ${pos.y - 4}px) rotate(${tilt}deg) rotateY(${turn}deg)`;
       }
 
       if (hintRef.current && !hintRef.current.classList.contains('gone')) {
-        hintRef.current.style.transform = `translate(${pos.x}px, ${pos.y + 240}px) translateX(-50%)`;
+        // Keep the "pull me" hint inside the stage so it can never bleed
+        // into the next section on short viewports.
+        const hintY = Math.min(pos.y + 240, H - 30);
+        hintRef.current.style.transform = `translate(${pos.x}px, ${hintY}px) translateX(-50%)`;
       }
 
       stepRope();
@@ -300,10 +305,14 @@ export default function Hero({ content }: HeroProps) {
       <div className="hero-copy">
         <p className="kicker intro-1">{c.kicker}</p>
         <h1 className="hero-title intro-2">
-          <span className="hero-line">LITTLE</span>
-          <span className="hero-line">Things</span>
-          <span className="hero-line">big</span>
-          <span className="hero-line">feeling</span>
+          {(c.title || '')
+            .split(/[\s\n]+/)
+            .filter(Boolean)
+            .map((word, i) => (
+              <span className="hero-line" key={i}>
+                {word.replace(/[.,!?]+$/, '')}
+              </span>
+            ))}
         </h1>
         <p className="sub intro-3">
           {c.sub}
@@ -385,7 +394,7 @@ export default function Hero({ content }: HeroProps) {
                 alt={activeProduct?.name || 'LILLO Interactive Keychain Charm — pull me!'}
                 draggable={false}
                 width={155}
-                style={{ width: '155px', height: 'auto', objectFit: 'contain', visibility: heroImgVisible ? 'visible' : 'hidden' }}
+                style={{ height: 'auto', objectFit: 'contain', visibility: heroImgVisible ? 'visible' : 'hidden' }}
                 onLoad={() => setHeroImgVisible(true)}
                 onError={() => setHeroImgVisible(false)}
               />

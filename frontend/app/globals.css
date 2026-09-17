@@ -354,6 +354,7 @@ nav.scrolled {
 /* Hero Main Section Layout */
 .hero-section {
   min-height: 100vh;
+  min-height: 100svh;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
   align-items: center;
@@ -361,6 +362,11 @@ nav.scrolled {
   margin: 0 auto;
   padding: 120px 6vw 80px;
   position: relative;
+}
+@supports (min-height: 100dvh) {
+  .hero-section {
+    min-height: 100dvh;
+  }
 }
 
 /* Animations for Text Load */
@@ -398,6 +404,7 @@ nav.scrolled {
   line-height: 1.0;
   letter-spacing: -0.02em;
   color: var(--text-main);
+  text-transform: uppercase;
 }
 .hero-copy .hero-title span {
   display: inline-block;
@@ -4896,6 +4903,11 @@ nav.scrolled {
     padding-top: 110px;
     padding-bottom: 40px;
   }
+  /* Stacked single-column mobile: show the charm stage above the copy
+     (Navbar -> Charm -> Title -> CTA), desktop order untouched. */
+  .hero-stage {
+    order: -1;
+  }
   .hero-copy .hero-title {
     font-size: clamp(2.2rem, 8.5vw, 3.6rem);
   }
@@ -4905,6 +4917,12 @@ nav.scrolled {
   }
   .hero-stage {
     height: 360px;
+  }
+  /* Mobile-proportional Charm 1 width (desktop keeps ~155px).
+     The JS centers the charm from its measured offsetWidth, so this
+     stays in sync automatically. */
+  #heroCharm {
+    width: clamp(110px, 32vw, 155px);
   }
 }
 
